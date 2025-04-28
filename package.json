@@ -4,7 +4,12 @@
   "description": "Epitech Web Todo List Project",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write '**/*.js'"
   },
   "repository": {
     "type": "git",
@@ -30,5 +35,12 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.25.1",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-prettier": "^5.2.6",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.5.3"
   }
 }
