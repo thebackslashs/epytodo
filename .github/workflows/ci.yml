@@ -42,8 +42,16 @@ jobs:
         if: needs.setup.outputs.cache-hit != 'true'
         run: npm ci
 
+      - name: Add Prettier problem matcher
+        run: echo "::add-matcher::.github/prettier-matcher.json"
+
       - name: Run Prettier check
-        run: npm run format -- --check
+        run: |
+          npm run format -- --check --loglevel warn
+          if [ $? -ne 0 ]; then
+            echo "::error::Prettier found files that need formatting. Run 'npm run format' to fix them."
+            exit 1
+          fi
 
   eslint:
     timeout-minutes: 10
@@ -62,8 +70,16 @@ jobs:
         if: needs.setup.outputs.cache-hit != 'true'
         run: npm ci
 
+      - name: Add ESLint problem matcher
+        run: echo "::add-matcher::.github/eslint-matcher.json"
+
       - name: Run ESLint
-        run: npm run lint
+        run: |
+          npm run lint -- --format github
+          if [ $? -ne 0 ]; then
+            echo "::error::ESLint found issues that need to be fixed."
+            exit 1
+          fi
 
   test:
     timeout-minutes: 10
@@ -83,4 +99,6 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test
+        run: npm test -- --verbose
+        env:
+          CI: true
