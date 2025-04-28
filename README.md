@@ -42,7 +42,7 @@ docker exec -it mysql-container mysql -u root -p
 ```sql
 CREATE DATABASE epytodo;
 CREATE USER 'epytodo'@'%' IDENTIFIED BY 'superstrongpassword';
-GRANT ALL PRIVILEGES ON epytodo.\* TO 'epytodo'@'%';
+GRANT ALL PRIVILEGES ON epytodo.* TO 'epytodo'@'%';
 ```
 
 ## Installation
