@@ -1,0 +1,34 @@
+{
+  "name": "epytodo",
+  "version": "1.0.0",
+  "description": "Epitech Web Todo List Project",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thebackslashs/epytodo.git"
+  },
+  "keywords": [
+    "API",
+    "ExpressJS",
+    "Epitech",
+    "Web",
+    "Project"
+  ],
+  "author": "Ely Delva @ Dimitri Collineau",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thebackslashs/epytodo/issues"
+  },
+  "homepage": "https://github.com/thebackslashs/epytodo#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^2.2.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.1"
+  }
+}
