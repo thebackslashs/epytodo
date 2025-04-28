@@ -18,7 +18,7 @@ docker pull mysql:latest
 2. Start the docker container
 
 ```bash
-docker run --name mysql-container \  system 11:36:54
+docker run --name mysql-container \
 -e MYSQL_ROOT_PASSWORD=password \
  -v mysql-data:/var/lib/mysql \
  -p 3306:3306 \
