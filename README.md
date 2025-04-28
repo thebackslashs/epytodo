@@ -15,7 +15,13 @@ A Node.js API using Express, MySQL2, JWT, bcryptjs, and dotenv.
 docker pull mysql:latest
 ```
 
-2. Start the docker container
+2. Create a docker volume
+
+```bash
+docker volume create mysql-data
+```
+
+3. Start the docker container
 
 ```bash
 docker run --name mysql-container \
@@ -25,13 +31,13 @@ docker run --name mysql-container \
  -d mysql:latest
 ```
 
-3. Start a shell in the docker
+4. Start a shell in the docker
 
 ```bash
 docker exec -it mysql-container mysql -u root -p
 ```
 
-4. Create the database and the appropirate user
+5. Create the database and the appropirate user
 
 ```sql
 CREATE DATABASE epytodo;
