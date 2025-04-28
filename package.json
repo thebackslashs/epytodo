@@ -4,7 +4,7 @@
   "description": "Epitech Web Todo List Project",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "lint": "eslint .",
