@@ -1,4 +1,3 @@
-// eslint.config.mjs
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import prettierConfig from 'eslint-config-prettier';
@@ -37,8 +36,8 @@ export default tseslint.config(
       'no-var': 'error',
       eqeqeq: ['error', 'always'],
       curly: ['error', 'all'],
-      'max-lines-per-function': ['warn', { max: 50 }],
-      complexity: ['warn', { max: 10 }],
+      'max-lines-per-function': ['warn', { max: 100 }],
+      complexity: ['warn', { max: 15 }],
 
       // Import rules
       'no-duplicate-imports': 'error',

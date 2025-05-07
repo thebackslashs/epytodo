@@ -1,12 +1,12 @@
-import express, { Request, Response } from 'express';
-const app = express();
-const port = process.env.PORT || 3000;
+import 'dotenv/config';
+import { Application } from '@/core/factory';
+import AppModule from './app.module';
 
-app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Welcome to Epytodo API' });
-});
+async function bootstrap(): Promise<void> {
+  const app = new Application(AppModule);
+  const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Server is running on port ${port}`);
-});
+  app.listen(Number(port));
+}
+
+bootstrap();
