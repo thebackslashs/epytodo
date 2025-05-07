@@ -75,7 +75,7 @@ jobs:
 
       - name: Run ESLint
         run: |
-          npm run lint -- --format github
+          npm run lint -- --format stylish
           if [ $? -ne 0 ]; then
             echo "::error::ESLint found issues that need to be fixed."
             exit 1
