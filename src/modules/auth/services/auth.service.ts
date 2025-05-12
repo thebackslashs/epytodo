@@ -9,7 +9,7 @@ import {
   UnauthorizedNoTokenError,
 } from '@/modules/auth/errors/auth.error';
 import { Inject } from '@/core';
-
+import { Request } from 'express';
 export class AuthService {
   private readonly JWT_SECRET: string;
   private readonly JWT_EXPIRES_IN: number = 24 * 60 * 60 * 1000;
@@ -20,7 +20,7 @@ export class AuthService {
     this.JWT_SECRET = process.env.SECRET || 'your-secret-key';
   }
 
-  private sanitizeResponse(user: User): Omit<User, 'password'> {
+  sanitizeUser(user: User): Omit<User, 'password'> {
     const { password: _password, ...userWithoutPassword } = user;
     return userWithoutPassword as Omit<User, 'password'>;
   }
@@ -56,7 +56,7 @@ export class AuthService {
     );
 
     // Remove password from response
-    return { user: this.sanitizeResponse(newUser), token };
+    return { user: this.sanitizeUser(newUser), token };
   }
 
   async login(
@@ -96,7 +96,6 @@ export class AuthService {
   async guardUserIsAuthenticated(
     req: Request
   ): Promise<Omit<User, 'password'>> {
-    // @ts-expect-error - Express Request type is not updated with the new authorization header
     const token = req.headers['authorization']?.split(' ')[1];
     if (!token) {
       throw new UnauthorizedNoTokenError();
@@ -106,7 +105,7 @@ export class AuthService {
     if (user.length === 0) {
       throw new InvalidTokenError();
     }
-    return this.sanitizeResponse(user[0]);
+    return this.sanitizeUser(user[0]);
   }
 
   verifyToken(token: string): { userId: number; email: string } {
