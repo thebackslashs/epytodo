@@ -6,7 +6,6 @@ import {
   AccountAlreadyExistsError,
   InvalidCredentialsError,
   InvalidTokenError,
-  UnauthorizedInvalidTokenError,
   UnauthorizedNoTokenError,
 } from '@/modules/auth/errors/auth.error';
 import { Inject } from '@/core';
@@ -90,7 +89,7 @@ export class AuthService {
     };
   }
 
-  async throwErrorIfNotAuthenticated(req: Request): Promise<void> {
+  async guardUserIsAuthenticated(req: Request): Promise<User> {
     const token = req.headers.get('authorization')?.split(' ')[1];
     if (!token) {
       throw new UnauthorizedNoTokenError();
@@ -100,6 +99,7 @@ export class AuthService {
     if (user.length === 0) {
       throw new InvalidTokenError();
     }
+    return user[0];
   }
 
   verifyToken(token: string): { userId: number; email: string } {
