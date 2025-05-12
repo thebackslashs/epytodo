@@ -1,4 +1,4 @@
-import { Controller, Get, Inject } from '@/core';
+import { Controller, Delete, Get, Inject } from '@/core';
 import { UserService } from '../services/user.service';
 import { User } from '../models/user.model';
 import { AuthService } from '@/modules/auth/services/auth.service';
@@ -23,10 +23,31 @@ export default class UsersController {
       }
       return this.authService.sanitizeUser(user[0]);
     }
+
     const user = await this.userService.findUsers({ id: parseInt(idOrEmail) });
     if (user.length === 0) {
       throw new UserNotFoundError();
     }
+
     return this.authService.sanitizeUser(user[0]);
+  }
+
+  @Delete('/:id')
+  async deleteUser(req: Request): Promise<{ msg: string }> {
+    await this.authService.guardUserIsAuthenticated(req);
+
+    const id = req.params['id'];
+    if (isNaN(parseInt(id))) {
+      throw new UserNotFoundError();
+    }
+
+    const user = await this.userService.findUsers({ id: parseInt(id) });
+    if (user.length === 0) {
+      throw new UserNotFoundError();
+    }
+
+    await this.userService.deleteUser({ id: parseInt(id) });
+
+    return { msg: `Successfully deleted record number : ${id}` };
   }
 }
