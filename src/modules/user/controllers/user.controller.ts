@@ -9,7 +9,7 @@ export default class UserController {
   ) {}
 
   @Get()
-  async getUser(req: Request): Promise<User> {
+  async getUser(req: Request): Promise<Omit<User, 'password'>> {
     return await this.authService.guardUserIsAuthenticated(req);
   }
 }

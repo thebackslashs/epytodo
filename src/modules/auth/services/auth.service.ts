@@ -20,8 +20,13 @@ export class AuthService {
     this.JWT_SECRET = process.env.SECRET || 'your-secret-key';
   }
 
+  private sanitizeResponse(user: User): Omit<User, 'password'> {
+    const { password: _password, ...userWithoutPassword } = user;
+    return userWithoutPassword as Omit<User, 'password'>;
+  }
+
   async register(userData: Omit<User, 'id' | 'created_at'>): Promise<{
-    user: User;
+    user: Omit<User, 'password'>;
     token: string;
   }> {
     // Check if user already exists
@@ -51,8 +56,7 @@ export class AuthService {
     );
 
     // Remove password from response
-    const { password: _password, ...userWithoutPassword } = newUser;
-    return { user: userWithoutPassword as User, token };
+    return { user: this.sanitizeResponse(newUser), token };
   }
 
   async login(
@@ -89,7 +93,9 @@ export class AuthService {
     };
   }
 
-  async guardUserIsAuthenticated(req: Request): Promise<User> {
+  async guardUserIsAuthenticated(
+    req: Request
+  ): Promise<Omit<User, 'password'>> {
     // @ts-expect-error - Express Request type is not updated with the new authorization header
     const token = req.headers['authorization']?.split(' ')[1];
     if (!token) {
@@ -100,7 +106,7 @@ export class AuthService {
     if (user.length === 0) {
       throw new InvalidTokenError();
     }
-    return user[0];
+    return this.sanitizeResponse(user[0]);
   }
 
   verifyToken(token: string): { userId: number; email: string } {
