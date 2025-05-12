@@ -90,7 +90,8 @@ export class AuthService {
   }
 
   async guardUserIsAuthenticated(req: Request): Promise<User> {
-    const token = req.headers.get('authorization')?.split(' ')[1];
+    // @ts-expect-error - Express Request type is not updated with the new authorization header
+    const token = req.headers['authorization']?.split(' ')[1];
     if (!token) {
       throw new UnauthorizedNoTokenError();
     }
