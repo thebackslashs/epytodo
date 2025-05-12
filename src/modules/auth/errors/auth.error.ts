@@ -17,3 +17,9 @@ export class AccountAlreadyExistsError extends ApiError {
     super('Account already exists', 400);
   }
 }
+
+export class UnauthorizedNoTokenError extends ApiError {
+  constructor() {
+    super('No token, authorization denied', 401);
+  }
+}

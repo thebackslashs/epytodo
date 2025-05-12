@@ -48,9 +48,10 @@ export class Application {
 
       for (const route of routes) {
         const { method, path, handlerName } = route;
-        const fullPath = `${prefix}/${path}`
-          .replace(/\/+/g, '/')
-          .replace(/\/$/, path === '/' ? '/' : '');
+        const fullPath = `${prefix}${path !== '/' ? `/${path}` : ''}`.replace(
+          /\/+/g,
+          '/'
+        );
 
         this.app[method.toLowerCase() as keyof ExpressApplication](
           fullPath,
