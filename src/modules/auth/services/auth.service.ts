@@ -25,6 +25,18 @@ export class AuthService {
     return userWithoutPassword as Omit<User, 'password'>;
   }
 
+  async hashPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(password, salt);
+  }
+
+  async comparePassword(
+    password: string,
+    hashedPassword: string
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hashedPassword);
+  }
+
   async register(userData: Omit<User, 'id' | 'created_at'>): Promise<{
     user: Omit<User, 'password'>;
     token: string;
@@ -38,8 +50,7 @@ export class AuthService {
     }
 
     // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(userData.password, salt);
+    const hashedPassword = await this.hashPassword(userData.password);
 
     // Create user with hashed password
     const newUser = await this.userService.createUser({
@@ -72,7 +83,7 @@ export class AuthService {
     const user = users[0];
 
     // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await this.comparePassword(password, user.password);
     if (!isValidPassword) {
       throw new InvalidCredentialsError();
     }
