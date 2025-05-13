@@ -1,6 +1,7 @@
 import { Controller, Get, Inject } from '@/core';
 import { AuthService } from '@/modules/auth/services/auth.service';
 import { User } from '@/modules/user/models/user.model';
+import { Request } from 'express';
 
 @Controller('/user')
 export default class UserController {
@@ -9,7 +10,7 @@ export default class UserController {
   ) {}
 
   @Get()
-  async getUser(req: Request): Promise<Omit<User, 'password'>> {
+  async getUser(req: Request): Promise<User> {
     return await this.authService.guardUserIsAuthenticated(req);
   }
 }

@@ -16,7 +16,7 @@ export default class UsersController {
   ) {}
 
   @Get('/:idOrEmail')
-  async getUser(req: Request): Promise<Omit<User, 'password'>> {
+  async getUser(req: Request): Promise<User> {
     await this.authService.guardUserIsAuthenticated(req);
 
     const idOrEmail = req.params['idOrEmail'];
@@ -25,7 +25,7 @@ export default class UsersController {
       if (user.length === 0) {
         throw new UserNotFoundError();
       }
-      return this.authService.sanitizeUser(user[0]);
+      return user[0];
     }
 
     const user = await this.userService.findUsers({ id: parseInt(idOrEmail) });
@@ -33,7 +33,7 @@ export default class UsersController {
       throw new UserNotFoundError();
     }
 
-    return this.authService.sanitizeUser(user[0]);
+    return user[0];
   }
 
   @Put('/:id')
