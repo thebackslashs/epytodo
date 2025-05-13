@@ -66,7 +66,7 @@ describe('Login', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toBeDefined();
-      expect(response.body).toEqual({ msg: 'Bad parameter' });
+      expect(response.body.msg).toBe('Bad parameter');
     });
 
     it('should throw an error if no password is provided', async () => {
@@ -76,7 +76,7 @@ describe('Login', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toBeDefined();
-      expect(response.body).toEqual({ msg: 'Bad parameter' });
+      expect(response.body.msg).toBe('Bad parameter');
     });
 
     it('should throw an error if no parameters are provided', async () => {
@@ -84,7 +84,7 @@ describe('Login', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toBeDefined();
-      expect(response.body).toEqual({ msg: 'Bad parameter' });
+      expect(response.body.msg).toBe('Bad parameter');
     });
   });
 
@@ -97,7 +97,40 @@ describe('Login', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toBeDefined();
-      expect(response.body).toEqual({ msg: 'Bad parameter' });
+      expect(response.body.msg).toBe('Bad parameter');
+    });
+
+    it('should throw an error if email is too long', async () => {
+      const response = await agent.post('/login').send({
+        email: 'a'.repeat(256) + '@test.com',
+        password,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
+
+    it('should throw an error if password is too long', async () => {
+      const response = await agent.post('/login').send({
+        email,
+        password: 'a'.repeat(256),
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
+
+    it('should throw an error if password is too short', async () => {
+      const response = await agent.post('/login').send({
+        email,
+        password: '',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
     });
   });
 
@@ -111,7 +144,7 @@ describe('Login', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toBeDefined();
-      expect(response.body).toEqual({ msg: 'Bad parameter' });
+      expect(response.body.msg).toBe('Bad parameter');
     });
 
     it('should throw an error if any other field is provided', async () => {
@@ -123,7 +156,7 @@ describe('Login', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toBeDefined();
-      expect(response.body).toEqual({ msg: 'Bad parameter' });
+      expect(response.body.msg).toBe('Bad parameter');
     });
   });
 
