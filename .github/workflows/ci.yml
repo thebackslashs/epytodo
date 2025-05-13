@@ -103,8 +103,77 @@ jobs:
         env:
           CI: true
 
+  e2e-test:
+    timeout-minutes: 15
+    needs: setup
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: epytodo
+          MYSQL_USER: epytodo
+          MYSQL_PASSWORD: superstrongpassword
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: needs.setup.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Install MySQL client
+        run: sudo apt-get update && sudo apt-get install -y default-mysql-client
+
+      - name: Wait for MySQL to be ready
+        run: |
+          timeout 30s bash -c 'until mysql -h localhost -u epytodo -psuperstrongpassword -e "SELECT 1" > /dev/null 2>&1; do sleep 1; done'
+
+      - name: Run database migration
+        run: npm run migrate
+        env:
+          MYSQL_DATABASE: epytodo
+          MYSQL_HOST: localhost
+          MYSQL_USER: epytodo
+          MYSQL_ROOT_PASSWORD: password
+          PORT: 3000
+          SECRET: test_secret
+
+      - name: Start server in background
+        run: npm run start &
+        env:
+          MYSQL_DATABASE: epytodo
+          MYSQL_HOST: localhost
+          MYSQL_USER: epytodo
+          MYSQL_ROOT_PASSWORD: password
+          PORT: 3000
+          SECRET: test_secret
+
+      - name: Wait for server to start
+        run: |
+          timeout 30s bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
+
+      - name: Run e2e tests
+        run: npm run test:e2e
+        env:
+          MYSQL_DATABASE: epytodo
+          MYSQL_HOST: localhost
+          MYSQL_USER: epytodo
+          MYSQL_ROOT_PASSWORD: password
+          PORT: 3000
+          SECRET: test_secret
+
   mirror:
-    needs: [test, prettier, eslint]
+    needs: [test, prettier, eslint, e2e-test]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     env:

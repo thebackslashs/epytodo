@@ -12,7 +12,8 @@
     "lint:fix": "eslint ./src --fix",
     "format": "prettier --write 'src/**/*.ts' --check",
     "format:fix": "prettier --write 'src/**/*.ts'",
-    "build": "tsc --outDir dist"
+    "build": "tsc --outDir dist",
+    "migrate": "tsx migrate.ts"
   },
   "repository": {
     "type": "git",
