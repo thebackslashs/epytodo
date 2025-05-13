@@ -47,7 +47,8 @@ export class Application {
       const logger = createLogger(`${controllerClass.name}Controller`);
 
       for (const route of routes) {
-        const { method, path, handlerName } = route;
+        const { method, path, handlerName, status } = route;
+
         const fullPath = `${prefix}${path !== '/' ? `/${path}` : ''}`.replace(
           /\/+/g,
           '/'
@@ -60,7 +61,7 @@ export class Application {
               const result = controller[handlerName](req, res);
               if (result instanceof Promise) {
                 result
-                  .then((data) => res.status(200).send(data))
+                  .then((data) => res.status(status).send(data))
                   .catch((err) => {
                     if (err instanceof ApiError) {
                       res.status(err.statusCode).send({ msg: err.message });
@@ -73,7 +74,7 @@ export class Application {
                     }
                   });
               } else {
-                res.status(200).send(JSON.stringify(result));
+                res.status(status).send(JSON.stringify(result));
               }
             } catch (err) {
               if (err instanceof ApiError) {
@@ -91,7 +92,7 @@ export class Application {
         );
 
         RouterExplorerLogger.info(
-          `Mapped ${yellow(`{${method} ${fullPath}}`)} route`
+          `Mapped ${yellow(`{${method} ${fullPath} }`)} route`
         );
       }
     }

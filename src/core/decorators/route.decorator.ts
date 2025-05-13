@@ -2,7 +2,7 @@ import { ControllerInstance, HttpMethod } from './types';
 import { getMetadata, setMetadata } from './metadata.storage';
 
 function createRouteDecorator(method: HttpMethod) {
-  return function (path: string = '/') {
+  return function (path: string = '/', status: number = 200) {
     return function (
       target: ControllerInstance,
       propertyKey: string,
@@ -14,6 +14,7 @@ function createRouteDecorator(method: HttpMethod) {
         method,
         path,
         handlerName: propertyKey,
+        status,
       });
       setMetadata(target.constructor, 'routes', routes);
       return descriptor;
