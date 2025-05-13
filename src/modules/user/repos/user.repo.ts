@@ -41,12 +41,13 @@ class UserRepo {
 
   async countBy(data: Partial<User>): Promise<number> {
     const [rows] = await this.db.query(
-      `SELECT COUNT(*) FROM user WHERE ${Object.keys(data)
+      `SELECT id FROM user WHERE ${Object.keys(data)
         .map((key) => `${key} = ?`)
         .join(' AND ')}`,
       Object.values(data)
     );
-    return (rows as { count: number }[])[0].count;
+
+    return (rows as { id: number }[]).length;
   }
 
   async findBy(data: Partial<User>): Promise<User[]> {
