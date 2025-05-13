@@ -106,4 +106,8 @@ export class Application {
   listen(port: number): void {
     this.app.listen(port, () => this.logListen(port));
   }
+
+  getApp(): ExpressApplication {
+    return this.app;
+  }
 }
