@@ -2,7 +2,7 @@ import * as v from '@/lib/validator';
 
 const RegisterDTO = v.object({
   fields: {
-    email: v.string({ minLength: 1, maxLength: 255 }),
+    email: v.string({ minLength: 1, maxLength: 255, isEmail: true }),
     name: v.string({ minLength: 1, maxLength: 255 }),
     password: v.string({ minLength: 1, maxLength: 255 }),
     firstname: v.string({ minLength: 1, maxLength: 255 }),
