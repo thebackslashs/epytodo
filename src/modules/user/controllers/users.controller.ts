@@ -6,7 +6,6 @@ import { Request } from 'express';
 import ValidatorMiddleware from '@/middlewares/validator.middleware';
 import UpdateUserDTO, { InferUpdateUserDTO } from '../dtos/update-user.dto';
 import { Middleware } from '@/core/decorators/middleware.decorator';
-import { BadParametersError } from '../errors/bad-parameter.error';
 @Controller('/users')
 export default class UsersController {
   constructor(
@@ -19,6 +18,7 @@ export default class UsersController {
     await this.authService.guardUserIsAuthenticated(req);
 
     const idOrEmail = req.params['idOrEmail'];
+
     return await this.userService.findUserByIdOrEmail(idOrEmail);
   }
 
@@ -29,12 +29,9 @@ export default class UsersController {
     await this.userService.guardUserExistById(parseInt(req.params['id']));
 
     const body = req.body as InferUpdateUserDTO;
+    const id = parseInt(req.params['id']);
 
-    if (body === null || Object.keys(body).length === 0) {
-      throw new BadParametersError();
-    }
-
-    return await this.userService.updateUser(parseInt(req.params['id']), body);
+    return await this.userService.updateUser(id, body);
   }
 
   @Delete('/:id')
@@ -42,8 +39,10 @@ export default class UsersController {
     await this.authService.guardUserIsAuthenticated(req);
     await this.userService.guardUserExistById(parseInt(req.params['id']));
 
-    await this.userService.deleteUserById(parseInt(req.params['id']));
+    const id = parseInt(req.params['id']);
 
-    return { msg: `Successfully deleted record number : ${req.params['id']}` };
+    await this.userService.deleteUserById(id);
+
+    return { msg: `Successfully deleted record number : ${id}` };
   }
 }

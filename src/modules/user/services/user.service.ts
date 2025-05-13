@@ -3,6 +3,7 @@ import UserRepo from '../repos/user.repo';
 import { Inject, Injectable } from '@/core';
 import { UserNotFoundError } from '../errors/user-not-found.error';
 import CryptoService from '@/modules/crypto/services/crypto.service';
+import { BadParametersError } from '../errors/bad-parameter.error';
 
 @Injectable()
 export class UserService {
@@ -26,6 +27,10 @@ export class UserService {
     id: number,
     data: Partial<Omit<User, 'id' | 'created_at'>>
   ): Promise<User> {
+    if (Object.keys(data).length === 0) {
+      throw new BadParametersError();
+    }
+
     if (data.password) {
       data.password = await this.cryptoService.hashPassword(data.password);
     }
