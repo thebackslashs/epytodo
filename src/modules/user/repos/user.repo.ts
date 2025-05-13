@@ -22,13 +22,32 @@ class UserRepo {
     };
   }
 
-  async update(id: number, data: Omit<Partial<User>, 'id'>): Promise<void> {
-    await this.db.query(
+  async update(
+    id: number,
+    data: Omit<Partial<User>, 'id' | 'created_at'>
+  ): Promise<User> {
+    const [rows] = await this.db.query(
       `UPDATE user SET ${Object.entries(data)
         .map(([key]) => `${key} = ?`)
-        .join(', ')} WHERE id = ?`,
+        .join(', ')} WHERE id = ? RETURNING *`,
       [...Object.entries(data).map(([, value]) => value), id]
     );
+
+    return {
+      ...(rows as User[])[0],
+      created_at: formatDate(new Date((rows as User[])[0].created_at)),
+    };
+  }
+
+  async countBy(data: Partial<User>): Promise<number> {
+    const [rows] = await this.db.query(
+      `SELECT id FROM user WHERE ${Object.keys(data)
+        .map((key) => `${key} = ?`)
+        .join(' AND ')}`,
+      Object.values(data)
+    );
+
+    return (rows as { id: number }[]).length;
   }
 
   async findBy(data: Partial<User>): Promise<User[]> {
