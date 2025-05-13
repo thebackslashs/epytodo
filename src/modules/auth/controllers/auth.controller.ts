@@ -22,7 +22,7 @@ export default class AuthController {
     return { token };
   }
 
-  @Post('/register')
+  @Post('/register', 201)
   @Middleware(ValidatorMiddleware(RegisterDTO))
   async register(req: Request): Promise<{ msg: string } | { token: string }> {
     const user = req.body as unknown as InferRegisterDTO;
