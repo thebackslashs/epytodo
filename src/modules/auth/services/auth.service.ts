@@ -1,13 +1,14 @@
 import { User } from '@/modules/user/models/user.model';
 import UserService from '@/modules/user/services/user.service';
 import CryptoService from '@/modules/crypto/services/crypto.service';
+import { Inject } from '@/core';
+import { Request } from 'express';
 import {
   AccountAlreadyExistsError,
   InvalidCredentialsError,
   UnauthorizedNoTokenError,
-} from '@/modules/auth/errors/auth.error';
-import { Inject } from '@/core';
-import { Request } from 'express';
+  UnauthorizedUserError,
+} from '@/modules/auth/errors';
 
 export class AuthService {
   constructor(
@@ -26,6 +27,19 @@ export class AuthService {
     const user = await this.userService.countUserById(userId);
     if (user === 0) {
       throw new InvalidCredentialsError();
+    }
+
+    return userId;
+  }
+
+  async guardUserCanModifyUserRessource(
+    req: Request,
+    id: number
+  ): Promise<number> {
+    const userId = await this.guardUserIsAuthenticated(req);
+
+    if (userId !== id) {
+      throw new UnauthorizedUserError();
     }
 
     return userId;

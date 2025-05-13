@@ -25,8 +25,10 @@ export default class UsersController {
   @Put('/:id')
   @Middleware(ValidatorMiddleware(UpdateUserDTO))
   async updateUser(req: Request): Promise<User> {
-    await this.authService.guardUserIsAuthenticated(req);
-    await this.userService.guardUserExistById(parseInt(req.params['id']));
+    await this.authService.guardUserCanModifyUserRessource(
+      req,
+      parseInt(req.params['id'])
+    );
 
     const body = req.body as InferUpdateUserDTO;
     const id = parseInt(req.params['id']);
@@ -36,8 +38,10 @@ export default class UsersController {
 
   @Delete('/:id')
   async deleteUser(req: Request): Promise<{ msg: string }> {
-    await this.authService.guardUserIsAuthenticated(req);
-    await this.userService.guardUserExistById(parseInt(req.params['id']));
+    await this.authService.guardUserCanModifyUserRessource(
+      req,
+      parseInt(req.params['id'])
+    );
 
     const id = parseInt(req.params['id']);
 
