@@ -133,11 +133,6 @@ jobs:
 
       - name: Install MySQL client
         run: sudo apt-get update && sudo apt-get install -y default-mysql-client
-
-      - name: Wait for MySQL to be ready
-        run: |
-          timeout 30s bash -c 'until mysql -h localhost -u epytodo -ppassword -e "SELECT 1" > /dev/null 2>&1; do sleep 1; done'
-
       - name: Run database migration
         run: npm run migrate
         env:
