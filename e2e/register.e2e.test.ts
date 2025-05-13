@@ -33,7 +33,7 @@ describe('Register', () => {
       name: 'Doe',
     });
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(201);
     expect(response.body).toBeDefined();
     expect(response.body.token).toBeDefined();
   });
