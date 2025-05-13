@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@/core';
 import { TodoRepo } from '../repos/todo.repo';
 import { Todo } from '../models/todo.model';
+import { InferCreateTodoDTO } from '../dtos/create-todo.dto';
 import { InferUpdateTodoDTO } from '../dtos/update-todo.dto';
 
 @Injectable()
@@ -16,10 +17,13 @@ export class TodoService {
   }
 
   async updateTodo(id: number, todoData: InferUpdateTodoDTO): Promise<Todo> {
+    const { due_time, ...rest } = todoData;
+    
     const parsedData = {
-        ...todoData,
-        ...(todoData.due_time && { due_time: new Date(todoData.due_time) })
+      ...rest,
+      ...(due_time ? { due_time: new Date(due_time) } : {})
     };
+    
     return this.todoRepo.update(id, parsedData);
   }
 }
