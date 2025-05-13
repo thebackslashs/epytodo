@@ -156,7 +156,7 @@ jobs:
           timeout 30s bash -c 'until curl -s http://localhost:3000 > /dev/null; do sleep 1; done'
 
       - name: Run e2e tests
-        run: npm run test:e2e
+        run: npm run test:e2e -- --verbose
         env:
           MYSQL_DATABASE: epytodo
           MYSQL_HOST: localhost
