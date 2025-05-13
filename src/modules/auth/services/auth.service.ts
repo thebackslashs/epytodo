@@ -1,76 +1,57 @@
-import bcrypt from 'bcryptjs';
-import jwt, { SignOptions } from 'jsonwebtoken';
 import { User } from '@/modules/user/models/user.model';
 import UserService from '@/modules/user/services/user.service';
+import CryptoService from '@/modules/crypto/services/crypto.service';
 import {
   AccountAlreadyExistsError,
   InvalidCredentialsError,
-  InvalidTokenError,
   UnauthorizedNoTokenError,
 } from '@/modules/auth/errors/auth.error';
 import { Inject } from '@/core';
 import { Request } from 'express';
+
 export class AuthService {
-  private readonly JWT_SECRET: string;
-  private readonly JWT_EXPIRES_IN: number = 24 * 60 * 60 * 1000;
-
   constructor(
-    @Inject('UserService') private readonly userService: UserService
-  ) {
-    this.JWT_SECRET = process.env.SECRET || 'your-secret-key';
-  }
+    @Inject('UserService') private readonly userService: UserService,
+    @Inject('CryptoService') private readonly cryptoService: CryptoService
+  ) {}
 
-  async hashPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt(10);
-    return bcrypt.hash(password, salt);
-  }
-
-  async comparePassword(
-    password: string,
-    hashedPassword: string
-  ): Promise<boolean> {
-    return bcrypt.compare(password, hashedPassword);
-  }
-
-  signToken(user: User): string {
-    const signOptions: SignOptions = { expiresIn: this.JWT_EXPIRES_IN };
-    return jwt.sign(
-      { userId: user.id, email: user.email },
-      this.JWT_SECRET,
-      signOptions
-    );
-  }
-
-  verifyToken(token: string): { userId: number; email: string } {
-    try {
-      return jwt.verify(token, this.JWT_SECRET) as {
-        userId: number;
-        email: string;
-      };
-    } catch {
-      throw new InvalidTokenError();
+  async guardUserIsAuthenticated(req: Request): Promise<number> {
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (!token) {
+      throw new UnauthorizedNoTokenError();
     }
+
+    const { userId } = this.cryptoService.verifyToken(token);
+
+    const user = await this.userService.countUserById(userId);
+    if (user === 0) {
+      throw new InvalidCredentialsError();
+    }
+
+    return userId;
   }
 
   async register(userData: Omit<User, 'id' | 'created_at'>): Promise<{
     user: User;
     token: string;
   }> {
-    const existingUsers = await this.userService.findUsers({
-      email: userData.email,
-    });
-    if (existingUsers.length > 0) {
+    const existingUsers = await this.userService.countUserByEmail(
+      userData.email
+    );
+    if (existingUsers > 0) {
       throw new AccountAlreadyExistsError();
     }
 
-    const hashedPassword = await this.hashPassword(userData.password);
+    const hashedPassword = await this.cryptoService.hashPassword(
+      userData.password
+    );
 
     const newUser = await this.userService.createUser({
       ...userData,
       password: hashedPassword,
     });
 
-    const token = this.signToken(newUser);
+    const token = this.cryptoService.signToken(newUser);
 
     return { user: newUser, token };
   }
@@ -86,33 +67,20 @@ export class AuthService {
 
     const user = users[0];
 
-    const isValidPassword = await this.comparePassword(password, user.password);
+    const isValidPassword = await this.cryptoService.comparePassword(
+      password,
+      user.password
+    );
     if (!isValidPassword) {
       throw new InvalidCredentialsError();
     }
 
-    const token = this.signToken(user);
+    const token = this.cryptoService.signToken(user);
 
     return {
       user,
       token,
     };
-  }
-
-  async guardUserIsAuthenticated(req: Request): Promise<User> {
-    const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) {
-      throw new UnauthorizedNoTokenError();
-    }
-
-    const { userId } = this.verifyToken(token);
-
-    const user = await this.userService.findUsers({ id: userId });
-    if (user.length === 0) {
-      throw new InvalidTokenError();
-    }
-
-    return user[0];
   }
 }
 
