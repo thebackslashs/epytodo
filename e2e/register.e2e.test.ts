@@ -1,8 +1,9 @@
 /* eslint-disable max-lines-per-function */
 
+import 'dotenv/config';
+
 import request from 'supertest';
 import mysql from 'mysql2/promise';
-import 'dotenv/config';
 import { randomUUID } from 'crypto';
 
 const baseUrl = process.env.BASE_URL ?? 'http://localhost:3000';
