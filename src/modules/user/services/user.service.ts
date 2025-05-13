@@ -1,7 +1,6 @@
 import { User } from '@/modules/user/models/user.model';
 import UserRepo from '../repos/user.repo';
 import { Inject, Injectable } from '@/core';
-import { formatDate } from '@/lib/dates';
 
 @Injectable()
 export class UserService {
@@ -16,19 +15,11 @@ export class UserService {
   }
 
   async findUsers(criteria: Partial<User>): Promise<User[]> {
-    const users = await this.userRepo.findBy(criteria);
-    return users.map((user) => ({
-      ...user,
-      created_at: formatDate(new Date(user.created_at)),
-    }));
+    return await this.userRepo.findBy(criteria);
   }
 
   async getAllUsers(): Promise<User[]> {
-    const users = await this.userRepo.findAll();
-    return users.map((user) => ({
-      ...user,
-      created_at: formatDate(new Date(user.created_at)),
-    }));
+    return await this.userRepo.findAll();
   }
 
   async deleteUser(criteria: Partial<User>): Promise<void> {
