@@ -4,6 +4,11 @@ import {
   ValidationResult,
 } from '@/lib/validator/types';
 
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 const parseString = (
   data: unknown,
   criteria: StringCriteria
@@ -19,6 +24,9 @@ const parseString = (
   }
   if (criteria.maxLength && data.length > criteria.maxLength) {
     return { valid: false, errors: ['String is too long'] };
+  }
+  if (criteria.isEmail && !isValidEmail(data)) {
+    return { valid: false, errors: ['Invalid email'] };
   }
   return { valid: true, errors: [] };
 };

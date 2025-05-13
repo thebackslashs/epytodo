@@ -7,6 +7,7 @@ export interface StringCriteria {
   minLength?: number;
   maxLength?: number;
   pattern?: RegExp;
+  isEmail?: boolean;
   optional?: boolean;
 }
 
