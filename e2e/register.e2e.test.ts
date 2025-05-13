@@ -56,20 +56,7 @@ describe('Register', () => {
     expect(response.body.msg).toBe('Account already exists');
   });
 
-  it('should not register a user with an invalid email', async () => {
-    const response = await agent.post('/register').send({
-      email: 'invalid-email',
-      password: 'password',
-      firstname: 'John',
-      name: 'Doe',
-    });
-
-    expect(response.status).toBe(400);
-    expect(response.body).toBeDefined();
-    expect(response.body.msg).toBe('Bad parameter');
-  });
-
-  describe('should not register a user with not enough parameters (firstname, name, email, password)', () => {
+  describe('should throw an error a parameter is missing', () => {
     it('should not register a user with no firstname', async () => {
       const response = await agent.post('/register').send({
         email,
@@ -117,23 +104,154 @@ describe('Register', () => {
       expect(response.body).toBeDefined();
       expect(response.body.msg).toBe('Bad parameter');
     });
+
+    it('should throw an error if no parameters are provided', async () => {
+      const response = await agent.post('/register').send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
   });
 
-  it('should not allow extra parameters', async () => {
-    const response = await agent.post('/register').send({
-      email,
-      password: 'password',
-      firstname: 'John',
-      name: 'Doe',
-      id: 1,
+  describe('should throw if field are not valid', () => {
+    it('should throw an error if email is not valid', async () => {
+      const response = await agent.post('/register').send({
+        email: 'invalid-email',
+        password: 'password',
+        firstname: 'John',
+        name: 'Doe',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
     });
 
-    expect(response.status).toBe(400);
-    expect(response.body).toBeDefined();
-    expect(response.body.msg).toBe('Bad parameter');
+    it('should throw an error if email is too long ', async () => {
+      const response = await agent.post('/register').send({
+        email: 'a'.repeat(256) + '@test.com',
+        password: 'invalid-password',
+        firstname: 'John',
+        name: 'Doe',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
+
+    it('should throw an error if password is too long', async () => {
+      const response = await agent.post('/register').send({
+        email,
+        password: 'a'.repeat(256),
+        firstname: 'John',
+        name: 'Doe',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
+
+    it('should throw an error if password is too short', async () => {
+      const response = await agent.post('/register').send({
+        email,
+        password: '',
+        firstname: 'John',
+        name: 'Doe',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
+
+    it('should throw an error if name is too long', async () => {
+      const response = await agent.post('/register').send({
+        email,
+        password: 'password',
+        firstname: 'John',
+        name: 'a'.repeat(256),
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
+
+    it('should throw an error if firstname is too long', async () => {
+      const response = await agent.post('/register').send({
+        email,
+        password: 'password',
+        firstname: 'a'.repeat(256),
+        name: 'Doe',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
+
+    it('should throw an error if name is too short', async () => {
+      const response = await agent.post('/register').send({
+        email,
+        password: 'password',
+        firstname: 'John',
+        name: '',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
+
+    it('should throw an error if firstname is too short', async () => {
+      const response = await agent.post('/register').send({
+        email,
+        password: 'password',
+        firstname: '',
+        name: 'Doe',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
+  });
+
+  describe('should throw if extra field is provided', () => {
+    it('should throw an error if id is provided', async () => {
+      const response = await agent.post('/register').send({
+        email,
+        password: 'password',
+        firstname: 'John',
+        name: 'Doe',
+        id: 1,
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
+
+    it('should throw an error if any other field is provided', async () => {
+      const response = await agent.post('/register').send({
+        email,
+        password: 'password',
+        firstname: 'John',
+        name: 'Doe',
+        extraField: 'extra-field',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.msg).toBe('Bad parameter');
+    });
   });
 
   afterAll(async () => {
+    await connection.query('DELETE FROM user WHERE email = ?', [email]);
     await connection.end();
   });
 });
