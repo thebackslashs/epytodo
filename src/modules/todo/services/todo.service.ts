@@ -10,7 +10,7 @@ export class TodoService {
   async createTodo(todoData: InferCreateTodoDTO): Promise<Todo> {
     const parsedData = {
       ...todoData,
-      due_time: new Date(todoData.due_time)
+      due_time: new Date(todoData.due_time),
     };
     return this.todoRepo.create(parsedData);
   }

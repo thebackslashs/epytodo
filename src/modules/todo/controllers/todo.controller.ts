@@ -8,13 +8,15 @@ import { Todo } from '../models/todo.model';
 
 @Controller('/todos')
 export class TodoController {
-    constructor(@Inject('TodoService') private readonly todoService: TodoService) {}
+  constructor(
+    @Inject('TodoService') private readonly todoService: TodoService
+  ) {}
 
-    @Post('/')
-    @Middleware(ValidatorMiddleware(CreateTodoDTO))
-    async createTodo(req: Request): Promise<{ todo: Todo }> {
-        const todoData = req.body as InferCreateTodoDTO;
-        const todo = await this.todoService.createTodo(todoData);
-        return { todo };
-    }
+  @Post('/')
+  @Middleware(ValidatorMiddleware(CreateTodoDTO))
+  async createTodo(req: Request): Promise<{ todo: Todo }> {
+    const todoData = req.body as InferCreateTodoDTO;
+    const todo = await this.todoService.createTodo(todoData);
+    return { todo };
+  }
 }
