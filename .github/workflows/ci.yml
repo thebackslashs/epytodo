@@ -167,7 +167,6 @@ jobs:
 
   build-and-test:
     timeout-minutes: 15
-    needs: [test, prettier, eslint, e2e-test]
     runs-on: ubuntu-latest
     services:
       mysql:
