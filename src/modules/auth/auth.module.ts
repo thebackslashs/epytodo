@@ -1,13 +1,13 @@
 import { Module } from '@/core';
-import { AuthService } from './services/auth.service';
 import AuthController from './controllers/auth.controller';
-import UserService from '@/modules/user/services/user.service';
+import AuthService from './services/auth.service';
 import UserModule from '@/modules/user/user.module';
+import { CryptoModule } from '@/modules/crypto/crypto.module';
 
 @Module({
-  imports: [UserModule],
+  imports: [UserModule, CryptoModule],
   controllers: [AuthController],
-  providers: [AuthService, UserService],
+  providers: [AuthService],
   exports: [AuthService],
 })
 export class AuthModule {}

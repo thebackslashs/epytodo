@@ -71,6 +71,12 @@ PORT=
 SECRET=
 ```
 
+4. Run database migration
+
+```bash
+npm run migrate
+```
+
 ## Get Started
 
 ```bash

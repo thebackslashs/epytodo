@@ -1,6 +1,7 @@
 import { User } from '@/modules/user/models/user.model';
 import { Inject, Injectable } from '@/core';
 import { DatabaseService } from '@/modules/database/database.service';
+import { formatDate } from '@/lib/dates';
 
 @Injectable()
 class UserRepo {
@@ -15,17 +16,38 @@ class UserRepo {
     );
 
     const user = await this.findBy({ email: data.email });
-    return user[0];
+    return {
+      ...user[0],
+      created_at: formatDate(new Date(user[0].created_at)),
+    };
   }
 
-  async update(id: number, data: Omit<Partial<User>, 'id'>): Promise<User> {
+  async update(
+    id: number,
+    data: Omit<Partial<User>, 'id' | 'created_at'>
+  ): Promise<User> {
     const [rows] = await this.db.query(
       `UPDATE user SET ${Object.entries(data)
         .map(([key]) => `${key} = ?`)
-        .join(', ')} WHERE id = ?`,
+        .join(', ')} WHERE id = ? RETURNING *`,
       [...Object.entries(data).map(([, value]) => value), id]
     );
-    return (rows as User[])[0];
+
+    return {
+      ...(rows as User[])[0],
+      created_at: formatDate(new Date((rows as User[])[0].created_at)),
+    };
+  }
+
+  async countBy(data: Partial<User>): Promise<number> {
+    const [rows] = await this.db.query(
+      `SELECT id FROM user WHERE ${Object.keys(data)
+        .map((key) => `${key} = ?`)
+        .join(' AND ')}`,
+      Object.values(data)
+    );
+
+    return (rows as { id: number }[]).length;
   }
 
   async findBy(data: Partial<User>): Promise<User[]> {
@@ -35,12 +57,18 @@ class UserRepo {
         .join(' AND ')}`,
       Object.values(data)
     );
-    return rows as User[];
+    return (rows as User[]).map((row) => ({
+      ...row,
+      created_at: formatDate(new Date(row.created_at)),
+    }));
   }
 
   async findAll(): Promise<User[]> {
     const [rows] = await this.db.query('SELECT * FROM user');
-    return rows as User[];
+    return (rows as User[]).map((row) => ({
+      ...row,
+      created_at: formatDate(new Date(row.created_at)),
+    }));
   }
 
   async deleteBy(data: Partial<User>): Promise<void> {
