@@ -22,7 +22,7 @@ export default class UsersController {
     return await this.userService.findUserByIdOrEmail(idOrEmail);
   }
 
-  @Put('/:id')
+  @Put('/:id', 204)
   @Middleware(ValidatorMiddleware(UpdateUserDTO))
   async updateUser(req: Request): Promise<User> {
     await this.authService.guardUserCanModifyUserRessource(
@@ -36,7 +36,7 @@ export default class UsersController {
     return await this.userService.updateUser(id, body);
   }
 
-  @Delete('/:id')
+  @Delete('/:id', 204)
   async deleteUser(req: Request): Promise<{ msg: string }> {
     await this.authService.guardUserCanModifyUserRessource(
       req,
