@@ -59,7 +59,8 @@ export class UserService {
   }
 
   async findUserByIdOrEmail(idOrEmail: string): Promise<User> {
-    if (isNaN(parseInt(idOrEmail))) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (emailRegex.test(idOrEmail)) {
       const user = await this.findUsers({ email: idOrEmail });
       if (user.length === 0) {
         throw new UserNotFoundError();
