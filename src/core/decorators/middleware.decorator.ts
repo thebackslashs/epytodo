@@ -20,7 +20,8 @@ export const Middleware = (
       req: Request,
       res: Response,
       next: NextFunction
-    ): Promise<void> {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ): Promise<any> {
       const logger = createLogger(`Middleware`);
 
       return new Promise((resolve, reject) => {

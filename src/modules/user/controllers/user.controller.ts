@@ -11,7 +11,7 @@ export default class UserController {
     @Inject('UserService') private readonly userService: UserService
   ) {}
 
-  @Get()
+  @Get('/', 200)
   async getUser(req: Request): Promise<User> {
     const userId = await this.authService.guardUserIsAuthenticated(req);
 

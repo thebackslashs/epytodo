@@ -47,6 +47,6 @@ export default class UsersController {
 
     await this.userService.deleteUserById(id);
 
-    return { msg: `Successfully deleted record number : ${id}` };
+    return { msg: `Successfully deleted record number: ${id.toString()}` };
   }
 }
