@@ -5,7 +5,7 @@ import { UserNotFoundError } from '../errors/user-not-found.error';
 import CryptoService from '@/modules/crypto/services/crypto.service';
 import { BadParametersError } from '../errors/bad-parameter.error';
 
-@Injectable()
+@Injectable('UserService')
 export class UserService {
   constructor(
     @Inject('UserRepo') private readonly userRepo: UserRepo,

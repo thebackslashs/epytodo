@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { ControllerInstance } from './decorators/index';
 import { getMetadata } from './decorators/metadata.storage';
 import { Logger, red, yellow } from '@/lib/logger';
@@ -8,16 +10,31 @@ export class Container {
   private instances = new Map();
   private dependencies = new Map();
   private exportedProviders = new Map();
+  private tokenMap = new Map<string, any>();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private addProvider(provider: any): void {
+    const token = getMetadata(provider, 'token');
+    const isController = getMetadata(provider, 'isController');
+
+    if (token) {
+      this.tokenMap.set(token, provider);
+    }
+
     if (!this.dependencies.has(provider.name)) {
       this.dependencies.set(provider.name, provider);
-      ContainerLogger.info(`Added provider ${yellow(provider.name)}`);
+      if (!isController) {
+        const providerName = token || provider.name;
+        ContainerLogger.info(
+          `Registered provider ${yellow(providerName)}${
+            token && token !== providerName
+              ? ` with token ${yellow(token)}`
+              : ''
+          }`
+        );
+      }
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   registerModule(moduleClass: any): void {
     const providers = getMetadata(moduleClass, 'providers') || [];
     const controllers = getMetadata(moduleClass, 'controllers') || [];
@@ -50,7 +67,6 @@ export class Container {
     this.resolve(moduleClass);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolve<T>(target: any): T {
     if (this.instances.has(target)) {
       return this.instances.get(target) as T;
@@ -82,8 +98,10 @@ export class Container {
       if (!token) {
         params.push(undefined);
       } else {
-        if (this.dependencies.has(token) || this.exportedProviders.has(token)) {
-          params.push(this.resolve(token));
+        const provider =
+          this.tokenMap.get(token) || this.dependencies.get(token);
+        if (provider || this.exportedProviders.has(token)) {
+          params.push(this.resolve(provider || token));
         } else {
           ContainerLogger.error(
             `${red(token)} is not available in ${red(dependency.name)}. Ensure it is provided by an imported module.`

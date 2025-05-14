@@ -6,6 +6,6 @@ import { TodoRepo } from './repos/todo.repo';
 @Module({
   controllers: [TodoController],
   providers: [TodoService, TodoRepo],
-  exports: [TodoService]
+  exports: [TodoService],
 })
 export class TodoModule {}
