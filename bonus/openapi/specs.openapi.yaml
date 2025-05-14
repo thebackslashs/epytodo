@@ -1,0 +1,249 @@
+openapi: 3.0.3
+info:
+  title: EpyTodo API
+  version: 1.0.0
+  description: RESTful API for a Todo application with user authentication
+
+servers:
+  - url: http://localhost:{port}
+    variables:
+      port:
+        default: '3000'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        email: { type: string }
+        password: { type: string }
+        firstname: { type: string }
+        name: { type: string }
+        created_at: { type: string, format: date-time }
+
+    Todo:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        created_at: { type: string, format: date-time }
+        due_time: { type: string, format: date-time }
+        user_id: { type: integer }
+        status:
+          { type: string, enum: ['not started', 'todo', 'in progress', 'done'] }
+
+    Token:
+      type: object
+      properties:
+        token: { type: string }
+
+    Message:
+      type: object
+      properties:
+        msg: { type: string }
+      required: [msg]
+
+    Error401NoToken:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        msg: No token , authorization denied
+
+    Error401InvalidToken:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        msg: Token is not valid
+
+    Error400BadParams:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        msg: Bad parameter
+
+    Error404NotFound:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        msg: Not found
+
+    Error500:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+      example:
+        msg: Internal server error
+
+security:
+  - BearerAuth: []
+
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+                firstname: { type: string }
+                name: { type: string }
+              required: [email, password, firstname, name]
+      responses:
+        '200':
+          description: Registered successfully
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Token' }
+        '400':
+          description: Account already exists or bad parameters
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+              examples:
+                exists:
+                  value: { msg: 'Account already exists' }
+                bad:
+                  value: { msg: 'Bad parameter' }
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error500' }
+
+  /login:
+    post:
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+              required: [email, password]
+      responses:
+        '200':
+          description: Logged in successfully
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Token' }
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Message' }
+              example:
+                msg: Invalid Credentials
+        '400':
+          description: Bad parameter
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error400BadParams' }
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error500' }
+
+  /user:
+    get:
+      summary: Get the logged-in user's info
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User data
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '401':
+          content:
+            application/json:
+              examples:
+                noToken:
+                  value: { msg: 'No token , authorization denied' }
+                invalidToken:
+                  value: { msg: 'Token is not valid' }
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error500' }
+
+  /todos:
+    get:
+      summary: Get all todos
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of todos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Todo' }
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              examples:
+                noToken:
+                  value: { msg: 'No token , authorization denied' }
+                invalidToken:
+                  value: { msg: 'Token is not valid' }
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error500' }
+
+  /todos/{id}:
+    get:
+      summary: Get a todo by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Todo retrieved
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Todo' }
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error404NotFound' }
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              examples:
+                noToken:
+                  value: { msg: 'No token , authorization denied' }
+                invalidToken:
+                  value: { msg: 'Token is not valid' }
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error500' }
