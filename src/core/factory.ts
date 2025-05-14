@@ -26,9 +26,12 @@ export class Application {
         err.status === 400 &&
         'body' in err
       ) {
-        return res.status(400).json({
-          msg: 'Bad parameter',
-        });
+        return res
+          .status(400)
+          .json({
+            msg: 'Bad parameter',
+          })
+          .end();
       }
       next(err);
     }) as ErrorRequestHandler);
@@ -61,31 +64,51 @@ export class Application {
               const result = controller[handlerName](req, res);
               if (result instanceof Promise) {
                 result
-                  .then((data) => res.status(status).send(data))
+                  .then((data) => {
+                    logger.debug(
+                      `Promise Request ${method} ${fullPath} : \n${JSON.stringify(data, null, 2)}`
+                    );
+                    res.status(status).json(data).end();
+                  })
                   .catch((err) => {
+                    logger.debug(
+                      `Promise Error ${method} ${fullPath} : \n${JSON.stringify(err, null, 2)}`
+                    );
                     if (err instanceof ApiError) {
-                      res.status(err.statusCode).send({ msg: err.message });
+                      res
+                        .status(err.statusCode)
+                        .json({ msg: err.message })
+                        .end();
                     } else {
                       logger.error(
-                        `Unhandled error in ${fullPath}: ${err.message}`
+                        `Promise Unhandled error in ${method} ${fullPath}: ${err.message}`
                       );
                       logger.debug(err);
-                      res.status(500).send({ msg: 'Internal server error' });
+                      res
+                        .status(500)
+                        .json({ msg: 'Internal server error' })
+                        .end();
                     }
                   });
               } else {
-                res.status(status).send(JSON.stringify(result));
+                logger.debug(
+                  `Request ${method} ${fullPath} : \n${JSON.stringify(result, null, 2)}`
+                );
+                res.status(status).json(result).end();
               }
             } catch (err) {
+              logger.debug(
+                `Error ${method} ${fullPath} :\n${JSON.stringify(err, null, 2)}`
+              );
               if (err instanceof ApiError) {
-                res.status(err.statusCode).send({ msg: err.message });
+                res.status(err.statusCode).json({ msg: err.message }).end();
               } else {
                 logger.error(
-                  `Unhandled error in ${fullPath}: ${(err as Error).message}`
+                  `Unhandled error in ${method} ${fullPath}: ${(err as Error).message}`
                 );
                 logger.debug(err as Error);
 
-                res.status(500).send({ msg: 'Internal server error' });
+                res.status(500).json({ msg: 'Internal server error' }).end();
               }
             }
           }

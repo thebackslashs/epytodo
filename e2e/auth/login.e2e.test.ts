@@ -56,7 +56,7 @@ describe('Login', () => {
 
     expect(response.status).toBe(401);
     expect(response.body).toBeDefined();
-    expect(response.body).toEqual({ msg: 'Invalid credentials' });
+    expect(response.body).toEqual({ msg: 'Invalid Credentials' });
   });
 
   describe('should throw an error a parameter is missing', () => {

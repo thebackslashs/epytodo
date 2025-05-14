@@ -7,7 +7,6 @@ import {
   AccountAlreadyExistsError,
   InvalidCredentialsError,
   UnauthorizedNoTokenError,
-  UnauthorizedUserError,
 } from '@/modules/auth/errors';
 
 export class AuthService {
@@ -26,7 +25,7 @@ export class AuthService {
 
     const user = await this.userService.countUserById(userId);
     if (user === 0) {
-      throw new InvalidCredentialsError();
+      throw new UnauthorizedNoTokenError();
     }
 
     return userId;
@@ -39,7 +38,7 @@ export class AuthService {
     const userId = await this.guardUserIsAuthenticated(req);
 
     if (userId !== id) {
-      throw new UnauthorizedUserError();
+      throw new UnauthorizedNoTokenError();
     }
 
     return userId;

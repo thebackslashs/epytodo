@@ -35,7 +35,7 @@ export class UserService {
       data.password = await this.cryptoService.hashPassword(data.password);
     }
 
-    return this.userRepo.update(id, data);
+    return await this.userRepo.update(id, data);
   }
 
   async countUserById(id: number): Promise<number> {
@@ -80,11 +80,11 @@ export class UserService {
   }
 
   async deleteUserById(id: number): Promise<void> {
-    return this.deleteUserBy({ id });
+    return await this.deleteUserBy({ id });
   }
 
   async deleteUserBy(criteria: Partial<User>): Promise<void> {
-    return this.userRepo.deleteBy(criteria);
+    return await this.userRepo.deleteBy(criteria);
   }
 }
 

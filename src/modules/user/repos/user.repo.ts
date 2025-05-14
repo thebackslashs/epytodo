@@ -26,12 +26,14 @@ class UserRepo {
     id: number,
     data: Omit<Partial<User>, 'id' | 'created_at'>
   ): Promise<User> {
-    const [rows] = await this.db.query(
+    await this.db.query(
       `UPDATE user SET ${Object.entries(data)
         .map(([key]) => `${key} = ?`)
-        .join(', ')} WHERE id = ? RETURNING *`,
+        .join(', ')} WHERE id = ?`,
       [...Object.entries(data).map(([, value]) => value), id]
     );
+
+    const [rows] = await this.db.query('SELECT * FROM user WHERE id = ?', [id]);
 
     return {
       ...(rows as User[])[0],
@@ -74,7 +76,7 @@ class UserRepo {
   async deleteBy(data: Partial<User>): Promise<void> {
     await this.db.query(
       `DELETE FROM user WHERE ${Object.keys(data)
-        .map((key) => `${key} = ?`)
+        .map((key) => `${key} = "?"`)
         .join(' AND ')}`,
       Object.values(data)
     );
