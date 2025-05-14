@@ -142,7 +142,7 @@ jobs:
           SECRET: test_secret
 
       - name: Start server in background
-        run: npm run start &
+        run: npm run start:ci &
         env:
           MYSQL_DATABASE: epytodo
           MYSQL_HOST: localhost
