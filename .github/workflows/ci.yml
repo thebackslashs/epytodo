@@ -169,7 +169,6 @@ jobs:
     timeout-minutes: 15
     needs: [test, prettier, eslint, e2e-test]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     services:
       mysql:
         image: mysql:latest
