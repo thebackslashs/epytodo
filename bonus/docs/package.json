@@ -1,0 +1,11 @@
+{
+  "name": "epytodo-docs",
+  "version": "1.0.0",
+  "description": "EpyTodo API Documentation",
+  "scripts": {
+    "start": "serve"
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}
