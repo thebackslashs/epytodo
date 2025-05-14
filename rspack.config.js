@@ -1,8 +1,7 @@
-import { defineConfig } from '@rspack/cli';
-import path from 'path';
+const path = require('path');
 
-export default defineConfig({
-  mode: 'production', // ou "production", mais sans minification
+module.exports = {
+  mode: 'production',
   target: 'node',
   entry: './src/index.ts',
   output: {
@@ -45,4 +44,4 @@ export default defineConfig({
   infrastructureLogging: {
     level: 'none',
   },
-});
+};
