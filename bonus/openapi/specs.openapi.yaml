@@ -8,7 +8,7 @@ servers:
   - url: http://localhost:{port}
     variables:
       port:
-        default: "3000"
+        default: '3000'
 
 components:
   securitySchemes:
@@ -21,23 +21,32 @@ components:
     User:
       type: object
       properties:
-        id: { type: integer }
-        email: { type: string }
-        password: { type: string }
-        firstname: { type: string }
-        name: { type: string }
-        created_at: { type: string, format: date-time }
+        id: { type: integer, default: 0 }
+        email: { type: string, default: 'jean@exemple.com' }
+        password: { type: string, default: '{{HASH_PASSWORD}}' }
+        firstname: { type: string, default: 'Jean' }
+        name: { type: string, default: 'Joe' }
+        created_at: { type: string, default: '2021-03-03 19:24:00' }
 
     Todo:
       type: object
       properties:
-        id: { type: integer }
-        title: { type: string }
-        description: { type: string }
-        created_at: { type: string, format: date-time }
-        due_time: { type: string, format: date-time }
+        id: { type: integer, default: 0 }
+        title: { type: string, default: 'Check coding style' }
+        description:
+          {
+            type: string,
+            'Ensure that our code base complies with Epitech development standards',
+          }
+        created_at: { type: string, default: 2021-03-03 19:24:00" }
+        due_time: { type: string, default: 2021-03-03 19:24:00" }
         user_id: { type: integer }
-        status: { type: string, enum: ["not started", "todo", "in progress", "done"] }
+        status:
+          {
+            type: string,
+            default: 'not started',
+            enum: ['not started', 'todo', 'in progress', 'done'],
+          }
 
     Token:
       type: object
@@ -57,9 +66,9 @@ components:
         application/json:
           examples:
             noToken:
-              value: { msg: "No token, authorization denied" }
+              value: { msg: 'No token, authorization denied' }
             invalidToken:
-              value: { msg: "Token is not valid" }
+              value: { msg: 'Token is not valid' }
     NotFound:
       description: Resource not found
       content:
@@ -105,8 +114,31 @@ paths:
                 name: { type: string }
               required: [email, password, firstname, name]
       responses:
-        '200': { description: User registered, content: { application/json: { schema: { $ref: '#/components/schemas/Token' } } } }
-        '400': { description: Account already exists or bad parameter, content: { application/json: { schema: { $ref: '#/components/schemas/Message' }, examples: { exists: { value: { msg: "Account already exists" } }, bad: { value: { msg: "Bad parameter" } } } } }
+        '201':
+          {
+            description: User registered,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/Token' } },
+              },
+          }
+        '400':
+          {
+            description: Account already exists or bad parameter,
+            content:
+              {
+                application/json:
+                  {
+                    schema: { $ref: '#/components/schemas/Message' },
+                    examples:
+                      {
+                        exists: { value: { msg: 'Account already exists' } },
+                        bad: { value: { msg: 'Bad parameter' } },
+                      },
+                  },
+              },
+          }
         '500': { $ref: '#/components/responses/InternalError' }
 
   /login:
@@ -123,40 +155,89 @@ paths:
                 password: { type: string }
               required: [email, password]
       responses:
-        '200': { description: Successful login, content: { application/json: { schema: { $ref: '#/components/schemas/Token' } } } }
-        '401': { description: Invalid credentials, content: { application/json: { schema: { $ref: '#/components/schemas/Message' }, example: { msg: "Invalid Credentials" } } } }
+        '200':
+          {
+            description: Successful login,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/Token' } },
+              },
+          }
+        '401':
+          {
+            description: Invalid credentials,
+            content:
+              {
+                application/json:
+                  {
+                    schema: { $ref: '#/components/schemas/Message' },
+                    example: { msg: 'Invalid Credentials' },
+                  },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '500': { $ref: '#/components/responses/InternalError' }
 
   /user:
     get:
       summary: Get current user information
-      security: [ { BearerAuth: [] } ]
+      security: [{ BearerAuth: [] }]
       responses:
-        '200': { description: User data, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '200':
+          {
+            description: User data,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/User' } },
+              },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/InternalError' }
 
   /user/todos:
     get:
       summary: Get all todos for the logged-in user
-      security: [ { BearerAuth: [] } ]
+      security: [{ BearerAuth: [] }]
       responses:
-        '200': { description: List of user todos, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Todo' } } } } }
+        '200':
+          {
+            description: List of user todos,
+            content:
+              {
+                application/json:
+                  {
+                    schema:
+                      {
+                        type: array,
+                        items: { $ref: '#/components/schemas/Todo' },
+                      },
+                  },
+              },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/InternalError' }
 
   /users/{identifier}:
     get:
       summary: Get a user by ID or email
-      security: [ { BearerAuth: [] } ]
+      security: [{ BearerAuth: [] }]
       parameters:
         - name: identifier
           in: path
           required: true
           schema: { type: string }
       responses:
-        '200': { description: User data, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '200':
+          {
+            description: User data,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/User' } },
+              },
+          }
         '404': { $ref: '#/components/responses/NotFound' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/InternalError' }
@@ -164,7 +245,7 @@ paths:
   /users/{id}:
     put:
       summary: Update user information
-      security: [ { BearerAuth: [] } ]
+      security: [{ BearerAuth: [] }]
       parameters:
         - name: id
           in: path
@@ -181,7 +262,15 @@ paths:
                 firstname: { type: string }
                 name: { type: string }
       responses:
-        '200': { description: Updated user, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '200':
+          {
+            description: Updated user,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/User' } },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -189,14 +278,26 @@ paths:
 
     delete:
       summary: Delete a user
-      security: [ { BearerAuth: [] } ]
+      security: [{ BearerAuth: [] }]
       parameters:
         - name: id
           in: path
           required: true
           schema: { type: integer }
       responses:
-        '200': { description: User deleted, content: { application/json: { schema: { $ref: '#/components/schemas/Message' }, example: { msg: "Successfully deleted record number: {id}" } } } }
+        '200':
+          {
+            description: User deleted,
+            content:
+              {
+                application/json:
+                  {
+                    schema: { $ref: '#/components/schemas/Message' },
+                    example:
+                      { msg: 'Successfully deleted record number: {id}' },
+                  },
+              },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/InternalError' }
@@ -204,15 +305,29 @@ paths:
   /todos:
     get:
       summary: Get all todos
-      security: [ { BearerAuth: [] } ]
+      security: [{ BearerAuth: [] }]
       responses:
-        '200': { description: List of todos, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Todo' } } } } }
+        '200':
+          {
+            description: List of todos,
+            content:
+              {
+                application/json:
+                  {
+                    schema:
+                      {
+                        type: array,
+                        items: { $ref: '#/components/schemas/Todo' },
+                      },
+                  },
+              },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/InternalError' }
 
     post:
       summary: Create a new todo
-      security: [ { BearerAuth: [] } ]
+      security: [{ BearerAuth: [] }]
       requestBody:
         required: true
         content:
@@ -225,7 +340,15 @@ paths:
                 user_id: { type: integer }
                 status: { type: string }
       responses:
-        '200': { description: Created todo, content: { application/json: { schema: { $ref: '#/components/schemas/Todo' } } } }
+        '200':
+          {
+            description: Created todo,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/Todo' } },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/InternalError' }
@@ -233,21 +356,29 @@ paths:
   /todos/{id}:
     get:
       summary: Get a todo by ID
-      security: [ { BearerAuth: [] } ]
+      security: [{ BearerAuth: [] }]
       parameters:
         - name: id
           in: path
           required: true
           schema: { type: integer }
       responses:
-        '200': { description: A todo, content: { application/json: { schema: { $ref: '#/components/schemas/Todo' } } } }
+        '200':
+          {
+            description: A todo,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/Todo' } },
+              },
+          }
         '404': { $ref: '#/components/responses/NotFound' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '500': { $ref: '#/components/responses/InternalError' }
 
     put:
       summary: Update a todo
-      security: [ { BearerAuth: [] } ]
+      security: [{ BearerAuth: [] }]
       parameters:
         - name: id
           in: path
@@ -265,7 +396,15 @@ paths:
                 user_id: { type: integer }
                 status: { type: string }
       responses:
-        '200': { description: Updated todo, content: { application/json: { schema: { $ref: '#/components/schemas/Todo' } } } }
+        '200':
+          {
+            description: Updated todo,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: '#/components/schemas/Todo' } },
+              },
+          }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -273,14 +412,26 @@ paths:
 
     delete:
       summary: Delete a todo
-      security: [ { BearerAuth: [] } ]
+      security: [{ BearerAuth: [] }]
       parameters:
         - name: id
           in: path
           required: true
           schema: { type: integer }
       responses:
-        '200': { description: Todo deleted, content: { application/json: { schema: { $ref: '#/components/schemas/Message' }, example: { msg: "Successfully deleted record number: {id}" } } } }
+        '200':
+          {
+            description: Todo deleted,
+            content:
+              {
+                application/json:
+                  {
+                    schema: { $ref: '#/components/schemas/Message' },
+                    example:
+                      { msg: 'Successfully deleted record number: {id}' },
+                  },
+              },
+          }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
         '500': { $ref: '#/components/responses/InternalError' }
