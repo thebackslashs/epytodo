@@ -1,7 +1,7 @@
 import { User } from '@/modules/user/models/user.model';
 import UserService from '@/modules/user/services/user.service';
 import CryptoService from '@/modules/crypto/services/crypto.service';
-import { Inject } from '@/core';
+import { Inject, Injectable } from '@/core';
 import { Request } from 'express';
 import {
   AccountAlreadyExistsError,
@@ -9,6 +9,7 @@ import {
   UnauthorizedNoTokenError,
 } from '@/modules/auth/errors';
 
+@Injectable('AuthService')
 export class AuthService {
   constructor(
     @Inject('UserService') private readonly userService: UserService,

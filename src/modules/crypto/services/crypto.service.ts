@@ -2,7 +2,9 @@ import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { User } from '@/modules/user/models/user.model';
 import { InvalidTokenError } from '../errors/invalid-token.error';
+import { Injectable } from '@/core';
 
+@Injectable('CryptoService')
 export class CryptoService {
   private readonly JWT_SECRET: string;
   private readonly JWT_EXPIRES_IN: number = 24 * 60 * 60 * 1000;

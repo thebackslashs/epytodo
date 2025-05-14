@@ -9,7 +9,7 @@ import { Logger } from '@/lib/logger';
 
 const DatabaseLogger = new Logger('DatabaseService');
 
-@Injectable()
+@Injectable('DatabaseService')
 export class DatabaseService {
   private connection: mysql.Connection | undefined;
   private readonly retryDelay = 5000;

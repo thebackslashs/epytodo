@@ -115,7 +115,7 @@ export class Application {
         );
 
         RouterExplorerLogger.info(
-          `Mapped ${yellow(`{${method} ${fullPath} }`)} route`
+          `Mapped ${yellow(`{${method} ${fullPath}}`)} route`
         );
       }
     }

@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@/core';
 import { DatabaseService } from '@/modules/database/database.service';
 import { formatDate } from '@/lib/dates';
 
-@Injectable()
+@Injectable('UserRepo')
 class UserRepo {
   constructor(
     @Inject('DatabaseService') private readonly db: DatabaseService
