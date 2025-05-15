@@ -12,13 +12,6 @@ export class UserService {
     @Inject('CryptoService') private readonly cryptoService: CryptoService
   ) {}
 
-  async guardUserExistById(id: number): Promise<void> {
-    const count = await this.countUserById(id);
-    if (count === 0) {
-      throw new UserNotFoundError();
-    }
-  }
-
   async createUser(userData: Omit<User, 'id' | 'created_at'>): Promise<User> {
     return await this.userRepo.create(userData);
   }
