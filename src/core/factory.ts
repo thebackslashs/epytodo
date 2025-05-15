@@ -37,6 +37,9 @@ export class Application {
     }) as ErrorRequestHandler);
 
     this.setupRoutes();
+    this.app.get('/health', (_req, res) => {
+      res.status(200).json({ msg: 'OK' }).end();
+    });
   }
 
   private setupRoutes(): void {
