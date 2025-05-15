@@ -22,17 +22,24 @@ pnpm add epytodo-sdk
 ## Usage
 
 ```typescript
-import { DefaultService, OpenAPI } from 'epytodo-sdk';
+import { postLogin, getTodos, client } from '@src';
 
-// Configure the base URL for the API
-OpenAPI.BASE = 'http://localhost:3000';
+// Configure the client
+client.setConfig({
+  baseUrl: 'http://localhost:3000',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 // Example: Login
 const login = async () => {
   try {
-    const response = await DefaultService.login({
-      email: 'user@example.com',
-      password: 'password123',
+    const response = await postLogin({
+      data: {
+        email: 'user@example.com',
+        password: 'password123',
+      },
     });
     console.log('Login successful:', response);
   } catch (error) {
@@ -43,7 +50,7 @@ const login = async () => {
 // Example: Get todos
 const getTodos = async () => {
   try {
-    const todos = await DefaultService.getTodos();
+    const todos = await getTodos();
     console.log('Todos:', todos);
   } catch (error) {
     console.error('Failed to fetch todos:', error);
