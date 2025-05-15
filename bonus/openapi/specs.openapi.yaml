@@ -56,7 +56,18 @@ components:
     Message:
       type: object
       properties:
-        msg: { type: string }
+        msg:
+          type: string
+          enum:
+            [
+              'Email already exists',
+              'Bad parameter',
+              'Not found',
+              'Internal server error',
+              'No token, authorization denied',
+              'Token is not valid',
+              'Invalid Credentials',
+            ]
       required: [msg]
 
   responses:
