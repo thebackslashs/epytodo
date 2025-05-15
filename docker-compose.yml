@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: epytodo-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: superstrongpassword
+      MYSQL_DATABASE: epytodo
+      MYSQL_USER: epytodo
+      MYSQL_PASSWORD: epytodo
+    expose:
+      - '3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - epytodo-network
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-u',
+          'root',
+          '-psuperstrongpassword',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  migration:
+    build:
+      context: .
+      dockerfile: bonus/docker/migrate.Dockerfile
+    container_name: epytodo-migration
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: superstrongpassword
+      MYSQL_DATABASE: epytodo
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - epytodo-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: bonus/docker/backend.Dockerfile
+    container_name: epytodo-backend
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: superstrongpassword
+      MYSQL_DATABASE: epytodo
+      PORT: 3000
+      SECRET: epytodo
+    expose:
+      - '3000'
+    depends_on:
+      mysql:
+        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - epytodo-network
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:3000/health',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./bonus/frontend
+      dockerfile: ../docker/frontend.Dockerfile
+    container_name: epytodo-frontend
+    environment:
+      BACKEND_API_URL: http://backend:3000
+      PORT: 4000
+    ports:
+      - '80:4000'
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - epytodo-network
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:4000',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  epytodo-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
