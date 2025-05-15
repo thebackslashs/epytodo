@@ -1,0 +1,50 @@
+# Dependencies
+node_modules
+.pnpm-store
+.pnpm-debug.log
+pnpm-debug.log
+
+# Next.js build output
+.next
+out
+dist
+
+# Environment and config files
+.env
+.env.*
+!.env.example
+
+# IDE and editor files
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Test files
+__tests__
+*.test.ts
+*.spec.ts
+coverage
+
+# Documentation
+README.md
+CHANGELOG.md
+docs
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# TypeScript
+*.tsbuildinfo
+
+# Misc
+*.log
+.DS_Store
+.eslintcache 
