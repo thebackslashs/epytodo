@@ -1,8 +1,18 @@
 import { ControllerInstance, HttpMethod } from './types';
 import { getMetadata, setMetadata } from './metadata.storage';
 
+type ContentType =
+  | 'application/json'
+  | 'text/html'
+  | 'text/yaml'
+  | 'text/plain';
+
 function createRouteDecorator(method: HttpMethod) {
-  return function (path: string = '/', status: number = 200) {
+  return function (
+    path: string = '/',
+    status: number = 200,
+    contentType: ContentType = 'application/json'
+  ) {
     return function (
       target: ControllerInstance,
       propertyKey: string,
@@ -15,6 +25,7 @@ function createRouteDecorator(method: HttpMethod) {
         path,
         handlerName: propertyKey,
         status,
+        contentType,
       });
       setMetadata(target.constructor, 'routes', routes);
       return descriptor;

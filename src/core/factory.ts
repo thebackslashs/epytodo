@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import express, {
   ErrorRequestHandler,
   Application as ExpressApplication,
@@ -46,81 +48,170 @@ export class Application {
     const controllers = this.container.getControllers();
 
     for (const controller of controllers) {
-      const controllerClass = controller.constructor;
-      const prefix = getMetadata(controllerClass, 'prefix') || '';
-      const routes = getMetadata(controllerClass, 'routes') || [];
+      this.setupControllerRoutes(controller);
+    }
+  }
 
-      const logger = createLogger(`${controllerClass.name}Controller`);
+  private setupControllerRoutes(controller: any): void {
+    const controllerClass = controller.constructor;
+    const prefix = getMetadata(controllerClass, 'prefix') || '';
+    const routes = getMetadata(controllerClass, 'routes') || [];
+    const logger = createLogger(`${controllerClass.name}Controller`);
 
-      for (const route of routes) {
-        const { method, path, handlerName, status } = route;
+    for (const route of routes) {
+      this.setupRoute(controller, route, prefix, logger);
+    }
+  }
 
-        const fullPath = `${prefix}${path !== '/' ? `/${path}` : ''}`.replace(
-          /\/+/g,
-          '/'
-        );
+  private setupRoute(
+    controller: any,
+    route: any,
+    prefix: string,
+    logger: ReturnType<typeof createLogger>
+  ): void {
+    const {
+      method,
+      path,
+      handlerName,
+      status,
+      contentType = 'application/json',
+    } = route;
+    const fullPath = this.buildFullPath(prefix, path);
 
-        this.app[method.toLowerCase() as keyof ExpressApplication](
+    this.app[method.toLowerCase() as keyof ExpressApplication](
+      fullPath,
+      (req: express.Request, res: express.Response) => {
+        this.handleRouteRequest(controller, handlerName, req, res, {
+          method,
           fullPath,
-          (req: express.Request, res: express.Response) => {
-            try {
-              const result = controller[handlerName](req, res);
-              if (result instanceof Promise) {
-                result
-                  .then((data) => {
-                    logger.debug(
-                      `Promise Request ${method} ${fullPath} : \n${JSON.stringify(data, null, 2)}`
-                    );
-                    res.status(status).json(data).end();
-                  })
-                  .catch((err) => {
-                    logger.debug(
-                      `Promise Error ${method} ${fullPath} : \n${JSON.stringify(err, null, 2)}`
-                    );
-                    if (err instanceof ApiError) {
-                      res
-                        .status(err.statusCode)
-                        .json({ msg: err.message })
-                        .end();
-                    } else {
-                      logger.error(
-                        `Promise Unhandled error in ${method} ${fullPath}: ${err.message}`
-                      );
-                      logger.debug(err);
-                      res
-                        .status(500)
-                        .json({ msg: 'Internal server error' })
-                        .end();
-                    }
-                  });
-              } else {
-                logger.debug(
-                  `Request ${method} ${fullPath} : \n${JSON.stringify(result, null, 2)}`
-                );
-                res.status(status).json(result).end();
-              }
-            } catch (err) {
-              logger.debug(
-                `Error ${method} ${fullPath} :\n${JSON.stringify(err, null, 2)}`
-              );
-              if (err instanceof ApiError) {
-                res.status(err.statusCode).json({ msg: err.message }).end();
-              } else {
-                logger.error(
-                  `Unhandled error in ${method} ${fullPath}: ${(err as Error).message}`
-                );
-                logger.debug(err as Error);
-
-                res.status(500).json({ msg: 'Internal server error' }).end();
-              }
-            }
-          }
-        );
-
-        RouterExplorerLogger.info(
-          `Mapped ${yellow(`{${method} ${fullPath}}`)} route`
-        );
+          status,
+          contentType,
+          logger,
+        });
       }
+    );
+
+    RouterExplorerLogger.info(
+      `Mapped ${yellow(`{${method} ${fullPath}}`)} route`
+    );
+  }
+
+  private buildFullPath(prefix: string, path: string): string {
+    return `${prefix}${path !== '/' ? `/${path}` : ''}`.replace(/\/+/g, '/');
+  }
+
+  private handleRouteRequest(
+    controller: any,
+    handlerName: string,
+    req: express.Request,
+    res: express.Response,
+    options: {
+      method: string;
+      fullPath: string;
+      status: number;
+      contentType: string;
+      logger: ReturnType<typeof createLogger>;
+    }
+  ): void {
+    try {
+      const result = controller[handlerName](req, res);
+      if (result instanceof Promise) {
+        this.handlePromiseResponse(result, res, options);
+      } else {
+        this.handleSyncResponse(result, res, options);
+      }
+    } catch (err) {
+      this.handleError(err, res, options);
+    }
+  }
+
+  private handlePromiseResponse(
+    promise: Promise<any>,
+    res: express.Response,
+    options: {
+      method: string;
+      fullPath: string;
+      status: number;
+      contentType: string;
+      logger: ReturnType<typeof createLogger>;
+    }
+  ): void {
+    const { method, fullPath, status, contentType, logger } = options;
+
+    promise
+      .then((data) => {
+        logger.debug(
+          `Promise Request ${method} ${fullPath} : \n${JSON.stringify(data, null, 2)}`
+        );
+        this.sendResponse(data, res, { status, contentType });
+      })
+      .catch((err) => {
+        logger.debug(
+          `Promise Error ${method} ${fullPath} : \n${JSON.stringify(err, null, 2)}`
+        );
+        this.handleError(err, res, options);
+      });
+  }
+
+  private handleSyncResponse(
+    result: any,
+    res: express.Response,
+    options: {
+      method: string;
+      fullPath: string;
+      status: number;
+      contentType: string;
+      logger: ReturnType<typeof createLogger>;
+    }
+  ): void {
+    const { method, fullPath, status, contentType, logger } = options;
+
+    logger.debug(
+      `Request ${method} ${fullPath} : \n${JSON.stringify(result, null, 2)}`
+    );
+    this.sendResponse(result, res, { status, contentType });
+  }
+
+  private sendResponse(
+    data: any,
+    res: express.Response,
+    options: { status: number; contentType: string }
+  ): void {
+    const { status, contentType } = options;
+    res.setHeader('Content-Type', contentType);
+
+    if (Buffer.isBuffer(data)) {
+      res.status(status).send(data).end();
+    } else if (contentType === 'application/json') {
+      res.status(status).json(data).end();
+    } else {
+      res.status(status).send(data).end();
+    }
+  }
+
+  private handleError(
+    err: any,
+    res: express.Response,
+    options: {
+      method: string;
+      fullPath: string;
+      logger: ReturnType<typeof createLogger>;
+    }
+  ): void {
+    const { method, fullPath, logger } = options;
+
+    logger.debug(
+      `Error ${method} ${fullPath} :\n${JSON.stringify(err, null, 2)}`
+    );
+
+    if (err instanceof ApiError) {
+      res.status(err.statusCode).json({ msg: err.message }).end();
+    } else {
+      logger.error(
+        `Unhandled error in ${method} ${fullPath}: ${(err as Error).message}`
+      );
+      logger.debug(err as Error);
+      res.status(500).json({ msg: 'Internal server error' }).end();
     }
   }
 
