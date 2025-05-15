@@ -113,6 +113,9 @@ importers:
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.1.0)
+      epytodo-sdk:
+        specifier: ^1.1.0
+        version: 1.1.0
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -1755,6 +1758,9 @@ packages:
   enhanced-resolve@5.18.1:
     resolution: {integrity: sha512-ZSW3ma5GkcQBIpwZTSRAI8N71Uuwgs93IezB7mf7R60tC8ZbJideoDNKjHn2O9KIlx6rkGTTEk1xUCK2E1Y2Yg==}
     engines: {node: '>=10.13.0'}
+
+  epytodo-sdk@1.1.0:
+    resolution: {integrity: sha512-c3be02OCiQZTPHMdOhnwlBLVLE9VmV6eDXM7rkfzlsEb1oYhW0/QhzPlELEccWcyqyzqztSSFgQe7dyFYjkhCQ==}
 
   es-abstract@1.23.9:
     resolution: {integrity: sha512-py07lI0wjxAC/DcfK1S6G7iANonniZwTISvdPzk9hzeH0IZIshbuuFxLIU96OyF89Yb9hiqWn8M/bY83KY5vzA==}
@@ -4646,6 +4652,8 @@ snapshots:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.2.1
+
+  epytodo-sdk@1.1.0: {}
 
   es-abstract@1.23.9:
     dependencies:
