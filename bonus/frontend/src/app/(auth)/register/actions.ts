@@ -1,5 +1,7 @@
 'use server';
 
+import '@/src/lib/epytodo-sdk.config';
+
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { SafeActionError, actionClient } from '@/src/lib/safe-action';
@@ -16,15 +18,15 @@ export const registerAction = actionClient
     });
 
     if (result.error) {
-      if (result.error.msg === 'Email already exists') {
-        throw new SafeActionError('Email already exists.');
+      if (result.error.msg === 'Account already exists') {
+        throw new SafeActionError('This email is already in use.');
       }
 
-      throw new SafeActionError('Internal server error.');
+      throw new Error('Internal server error.');
     }
 
     if (!result.data?.token) {
-      throw new SafeActionError('Internal server error.');
+      throw new Error('Internal server error.');
     }
 
     const cookieStore = await cookies();

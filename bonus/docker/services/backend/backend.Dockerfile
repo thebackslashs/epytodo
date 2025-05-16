@@ -22,7 +22,6 @@ WORKDIR /app
 # Environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV SECRET=epytodo
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs
@@ -30,6 +29,8 @@ RUN adduser --system --uid 1001 expressjs
 
 # Copy necessary files
 COPY --from=builder /app/dist/index.js ./dist/index.js
+COPY --from=builder /app/bonus/openapi/specs.openapi.yaml ./bonus/openapi/specs.openapi.yaml
+COPY --from=builder /app/bonus/docs/index.html ./bonus/docs/index.html
 
 # Set correct permissions
 RUN chown -R expressjs:nodejs /app

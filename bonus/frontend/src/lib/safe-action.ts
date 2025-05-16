@@ -1,4 +1,4 @@
-import { createSafeActionClient } from "next-safe-action";
+import { createSafeActionClient } from 'next-safe-action';
 
 export const actionClient = createSafeActionClient({
   handleServerError: (error) => {
@@ -6,7 +6,8 @@ export const actionClient = createSafeActionClient({
       return error.message;
     }
 
-    return "Something went wrong, please try again later.";
+    console.error(error);
+    return 'Something went wrong, please try again later.';
   },
 });
 export class SafeActionError extends Error {

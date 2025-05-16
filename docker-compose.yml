@@ -1,14 +1,9 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
     container_name: epytodo-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: superstrongpassword
-      MYSQL_DATABASE: epytodo
-      MYSQL_USER: epytodo
-      MYSQL_PASSWORD: epytodo
+    env_file:
+      - ./bonus/docker/services/db/mysql.env
     expose:
       - '3306'
     volumes:
@@ -35,13 +30,10 @@ services:
   migration:
     build:
       context: .
-      dockerfile: bonus/docker/migrate.Dockerfile
+      dockerfile: ./bonus/docker/services/changes/migrate.Dockerfile
     container_name: epytodo-migration
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_USER: root
-      MYSQL_ROOT_PASSWORD: superstrongpassword
-      MYSQL_DATABASE: epytodo
+    env_file:
+      - ./bonus/docker/services/changes/migrate.env
     depends_on:
       mysql:
         condition: service_healthy
@@ -51,17 +43,12 @@ services:
   backend:
     build:
       context: .
-      dockerfile: bonus/docker/backend.Dockerfile
+      dockerfile: ./bonus/docker/services/backend/backend.Dockerfile
     container_name: epytodo-backend
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_USER: root
-      MYSQL_ROOT_PASSWORD: superstrongpassword
-      MYSQL_DATABASE: epytodo
-      PORT: 3000
-      SECRET: epytodo
-      ADMIN_USERNAME: admin
-      ADMIN_HASHED_PASSWORD: $2a$10$jNvYDaf4E6QLX2p0luxEB.0JHuTj7d4XQ2f4DnbHZtLznjwObtyMW
+    env_file:
+      - ./bonus/docker/services/backend/backend.env
+    ports:
+      - '3000:3000'
     expose:
       - '3000'
     depends_on:
@@ -89,13 +76,12 @@ services:
   frontend:
     build:
       context: ./bonus/frontend
-      dockerfile: ../docker/frontend.Dockerfile
+      dockerfile: ../docker/services/frontend/frontend.Dockerfile
     container_name: epytodo-frontend
-    environment:
-      BACKEND_API_URL: http://backend:3000
-      PORT: 4000
+    env_file:
+      - ./bonus/docker/services/frontend/frontend.env
     ports:
-      - '80:4000'
+      - '80:3000'
     depends_on:
       backend:
         condition: service_healthy
@@ -109,7 +95,7 @@ services:
           '--no-verbose',
           '--tries=1',
           '--spider',
-          'http://localhost:4000',
+          'http://frontend:3000',
         ]
       interval: 10s
       timeout: 5s
