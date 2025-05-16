@@ -4,6 +4,7 @@ import { Todo } from '../models/todo.model';
 import { InferCreateTodoDTO } from './../dtos/create-todo.dto';
 import { NotFoundError } from '../errors/not-found.error';
 import { NotAutorizedError } from '../errors/not-autorized.error';
+import { BadParameterError } from '../errors/bad-parameter.error';
 
 @Injectable()
 export class TodoService {
@@ -43,6 +44,35 @@ export class TodoService {
     }
 
     return todo;
+  }
+
+  async updateTodoById(
+    fields: Partial<Omit<Todo, 'id' | 'created_at'>>,
+    id: number
+  ): Promise<Todo> {
+    return this.todoRepo.updateOneBy(fields, id);
+  }
+
+  async updateUserTodoById(
+    fields: Partial<Omit<Todo, 'id' | 'created_at'>>,
+    id: number,
+    userId: number
+  ): Promise<Todo> {
+    const todo = await this.todoRepo.findOneBy({ id });
+
+    if (Object.keys(fields).length === 0) {
+      throw new BadParameterError();
+    }
+
+    if (!todo) {
+      throw new NotFoundError();
+    }
+
+    if (todo.user_id !== userId) {
+      throw new NotAutorizedError();
+    }
+
+    return this.todoRepo.updateOneBy(fields, id);
   }
 
   async deleteTodoById(id: number): Promise<void> {

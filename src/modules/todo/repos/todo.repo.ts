@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@/core';
 import { DatabaseService } from '@/modules/database/database.service';
 import { Todo } from '../models/todo.model';
 import { formatDate } from '@/lib/dates';
+import { NotFoundError } from '../errors/not-found.error';
 
 @Injectable()
 export class TodoRepo {
@@ -63,6 +64,31 @@ export class TodoRepo {
 
     if (!todo) {
       return null;
+    }
+
+    return {
+      ...todo,
+      created_at: formatDate(new Date(todo.created_at)),
+      due_time: formatDate(new Date(todo.due_time)),
+    };
+  }
+
+  async updateOneBy(fields: Partial<Todo>, id: number): Promise<Todo> {
+    await this.db.query(
+      'UPDATE todo SET ' +
+        Object.keys(fields)
+          .map((key) => `${key} = ?`)
+          .join(', ') +
+        ' WHERE id = ?',
+      [...Object.values(fields), id]
+    );
+
+    const [rows] = await this.db.query('SELECT * FROM todo WHERE id = ?', [id]);
+
+    const todo = (rows as Todo[])[0];
+
+    if (!todo) {
+      throw new NotFoundError();
     }
 
     return {

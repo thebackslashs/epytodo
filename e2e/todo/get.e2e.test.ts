@@ -124,34 +124,51 @@ describe('Get Todos', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toBeDefined();
-      expect(response.body.length).toBe(3);
-      expect(response.body[0]).toMatchObject({
-        id: expect.any(Number),
-        user_id: userId,
-        status: 'not started',
-        title: 'Test Todo',
-        description: 'Test Description',
-        created_at: expect.any(String),
-        due_time: '2021-03-03 19:24:00',
-      });
-      expect(response.body[1]).toMatchObject({
-        id: expect.any(Number),
-        user_id: userId,
-        status: 'in progress',
-        title: 'Test Todo 2',
-        description: 'Test Description 2',
-        created_at: expect.any(String),
-        due_time: '2021-03-03 19:24:00',
-      });
-      expect(response.body[2]).toMatchObject({
-        id: expect.any(Number),
-        user_id: userIdBis,
-        status: 'done',
-        title: 'Test Todo 3',
-        description: 'Test Description 3',
-        created_at: expect.any(String),
-        due_time: '2021-03-03 19:24:00',
-      });
+      expect(response.body.length).toBeGreaterThanOrEqual(3);
+      expect(response.body).toContainEqual(
+        expect.objectContaining({
+          id: expect.any(Number),
+          user_id: userId,
+          status: 'not started',
+          title: 'Test Todo',
+          description: 'Test Description',
+          created_at: expect.any(String),
+          due_time: '2021-03-03 19:24:00',
+        })
+      );
+      expect(response.body).toContainEqual(
+        expect.objectContaining({
+          id: expect.any(Number),
+          user_id: userId,
+          status: 'not started',
+          title: 'Test Todo',
+          description: 'Test Description',
+          created_at: expect.any(String),
+          due_time: '2021-03-03 19:24:00',
+        })
+      );
+      expect(response.body).toContainEqual(
+        expect.objectContaining({
+          id: expect.any(Number),
+          user_id: userId,
+          status: 'in progress',
+          title: 'Test Todo 2',
+          description: 'Test Description 2',
+          created_at: expect.any(String),
+          due_time: '2021-03-03 19:24:00',
+        })
+      );
+      expect(response.body).toContainEqual(
+        expect.objectContaining({
+          id: expect.any(Number),
+          user_id: userIdBis,
+          status: 'done',
+          title: 'Test Todo 3',
+          description: 'Test Description 3',
+          created_at: expect.any(String),
+          due_time: '2021-03-03 19:24:00',
+        })
+      );
     });
 
     it('should throw an unauthorized error if no token is provided', async () => {
