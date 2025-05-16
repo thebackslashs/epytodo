@@ -1,6 +1,6 @@
 import * as v from '@/lib/validator';
 
-const UpdateUserDTO = v.object({
+export const UpdateUserDTO = v.object({
   fields: {
     name: v.string({ minLength: 1, maxLength: 255, optional: true }),
     email: v.string({
@@ -21,5 +21,4 @@ interface InferUpdateUserDTO {
   firstname?: string;
 }
 
-export default UpdateUserDTO;
 export type { InferUpdateUserDTO };

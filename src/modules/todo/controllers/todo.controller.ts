@@ -2,10 +2,14 @@ import { Controller, Get, Inject, Post } from '@/core';
 import { Request } from 'express';
 import { TodoService } from '../services/todo.service';
 import { Middleware } from '@/core/decorators/middleware.decorator';
-import ValidatorMiddleware from '@/middlewares/validator.middleware';
+import {
+  BodyValidatorMiddleware,
+  ParamsValidatorMiddleware,
+} from '@/middlewares/validator.middleware';
 import CreateTodoDTO, { InferCreateTodoDTO } from './../dtos/create-todo.dto';
 import { Todo } from '../models/todo.model';
 import { AuthGuard } from '@/modules/auth/guards/auth.guard';
+import GetTodoByIdSchema from '../dtos/user-id.dto';
 
 @Controller('/todos')
 export class TodoController {
@@ -21,8 +25,19 @@ export class TodoController {
     return this.todoService.getTodos();
   }
 
+  @Get('/:id', 200)
+  @Middleware(ParamsValidatorMiddleware(GetTodoByIdSchema))
+  async getTodoById(req: Request): Promise<Todo> {
+    await this.authGuard.guardUserCanModifyUserRessource(
+      req,
+      Number(req.params.id)
+    );
+
+    return this.todoService.getTodoById(Number(req.params.id));
+  }
+
   @Post('/', 201)
-  @Middleware(ValidatorMiddleware(CreateTodoDTO))
+  @Middleware(BodyValidatorMiddleware(CreateTodoDTO))
   async createTodo(req: Request): Promise<Todo> {
     await this.authGuard.guardUserCanModifyUserRessource(req, req.body.user_id);
 

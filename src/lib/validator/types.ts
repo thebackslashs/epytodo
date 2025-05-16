@@ -9,6 +9,8 @@ export interface StringCriteria {
   pattern?: RegExp;
   isEmail?: boolean;
   isDate?: boolean;
+  isNumber?: boolean;
+  numberCriteria?: NumberCriteria;
   optional?: boolean;
 }
 

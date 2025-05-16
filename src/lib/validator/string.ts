@@ -3,6 +3,7 @@ import {
   StringValidator,
   ValidationResult,
 } from '@/lib/validator/types';
+import { parseNumber } from './number';
 
 const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -15,7 +16,7 @@ const isValidDate = (date: string): boolean => {
   return dateRegex.test(date);
 };
 
-const parseString = (
+export const parseString = (
   data: unknown,
   criteria: StringCriteria
 ): ValidationResult => {
@@ -36,6 +37,12 @@ const parseString = (
   }
   if (criteria.isDate && !isValidDate(data)) {
     return { valid: false, errors: ['Invalid date'] };
+  }
+  if (
+    criteria.isNumber &&
+    !parseNumber(parseInt(data), criteria.numberCriteria ?? {}).valid
+  ) {
+    return { valid: false, errors: ['Invalid number'] };
   }
   return { valid: true, errors: [] };
 };

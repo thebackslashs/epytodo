@@ -49,4 +49,21 @@ export class TodoRepo {
       due_time: formatDate(new Date(row.due_time)),
     }));
   }
+
+  async findBy(fields: Partial<Todo>): Promise<Todo> {
+    const [rows] = await this.db.query(
+      'SELECT * FROM todo WHERE ' +
+        Object.keys(fields)
+          .map((key) => `${key} = ?`)
+          .join(' AND '),
+      Object.values(fields)
+    );
+
+    const todo = (rows as Todo[])[0];
+    return {
+      ...todo,
+      created_at: formatDate(new Date(todo.created_at)),
+      due_time: formatDate(new Date(todo.due_time)),
+    };
+  }
 }

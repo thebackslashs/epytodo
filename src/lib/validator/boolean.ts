@@ -4,7 +4,7 @@ import {
   ValidationResult,
 } from '@/lib/validator/types';
 
-const parseBoolean = (
+export const parseBoolean = (
   data: unknown,
   criteria: BooleanCriteria
 ): ValidationResult => {

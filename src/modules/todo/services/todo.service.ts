@@ -18,4 +18,8 @@ export class TodoService {
   async getTodosByUserId(userId: number): Promise<Todo[]> {
     return this.todoRepo.findAllByUserId(userId);
   }
+
+  async getTodoById(id: number): Promise<Todo> {
+    return this.todoRepo.findBy({ id });
+  }
 }
