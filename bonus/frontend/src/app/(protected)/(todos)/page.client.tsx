@@ -58,7 +58,7 @@ function getColumns(
     const activeTodo = todos.find((todo) => todo.id === activeTodoId);
 
     if (activeTodo) {
-      activeTodo.status = activeColumnId as PossibleDraftTodo['status'];
+      activeTodo.status = activeColumnId ?? undefined;
     }
   }
 
@@ -79,9 +79,7 @@ function getColumns(
 }
 
 export default function TodoList({ todos: defaultTodos }: TodoListProps) {
-  const { todos, updateTodoStatus, addDraft } = useTodos(
-    defaultTodos as PossibleDraftTodo[]
-  );
+  const { todos, updateTodoStatus, addDraft } = useTodos(defaultTodos);
 
   const { activeTodoId, activeColumnId, handlers } = useDragHandlers({
     columnIds: [...columnIds, DRAFT_DROP_ZONE_ID],
@@ -123,7 +121,7 @@ export default function TodoList({ todos: defaultTodos }: TodoListProps) {
                   title={`${status} (${columns[status].length})`}
                   todos={columns[status]}
                   isActive={activeColumnId === status}
-                  icon={columnsIcons[status as keyof typeof columnsIcons]}
+                  icon={columnsIcons[status]}
                 />
               ))}
             </div>

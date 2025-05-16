@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable complexity */
+
 import { useState } from 'react';
-import { Todo } from 'epytodo-sdk';
 import { toast } from 'sonner';
 import { Button } from '@/src/components/ui/button';
 import { CheckIcon } from 'lucide-react';

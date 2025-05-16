@@ -1,3 +1,5 @@
+/* eslint-disable max-lines-per-function */
+
 'use client';
 
 import * as React from 'react';

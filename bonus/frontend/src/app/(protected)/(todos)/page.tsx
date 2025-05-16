@@ -1,13 +1,13 @@
 import { Metadata } from 'next';
 import TodoList from './page.client';
-import { Todo } from 'epytodo-sdk';
+import { PossibleDraftTodo } from './draft.type';
 
 export const metadata: Metadata = {
   title: 'Todo List',
   description: 'Manage your tasks',
 };
 
-const initialTodos: Todo[] = [
+const initialTodos: PossibleDraftTodo[] = [
   {
     id: 1,
     title: 'Learn Next.js',
