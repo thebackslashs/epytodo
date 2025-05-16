@@ -8,6 +8,7 @@ export interface StringCriteria {
   maxLength?: number;
   pattern?: RegExp;
   isEmail?: boolean;
+  isDate?: boolean;
   optional?: boolean;
 }
 
