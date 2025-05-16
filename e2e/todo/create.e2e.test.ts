@@ -17,7 +17,7 @@ let token: string;
 let userId: number;
 const cryptoService = new CryptoService();
 
-describe('User', () => {
+describe('Create Todo', () => {
   beforeAll(async () => {
     connection = await mysql.createConnection({
       host: process.env.MYSQL_HOST,

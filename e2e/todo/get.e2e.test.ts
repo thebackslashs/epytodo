@@ -21,7 +21,7 @@ let todoId: number;
 let todoIdBis: number;
 const cryptoService = new CryptoService();
 
-describe('User', () => {
+describe('Get Todos', () => {
   beforeAll(async () => {
     connection = await mysql.createConnection({
       host: process.env.MYSQL_HOST,
