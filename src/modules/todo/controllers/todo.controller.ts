@@ -1,4 +1,4 @@
-import { Controller, Inject, Post } from '@/core';
+import { Controller, Get, Inject, Post } from '@/core';
 import { Request } from 'express';
 import { TodoService } from '../services/todo.service';
 import { Middleware } from '@/core/decorators/middleware.decorator';
@@ -13,6 +13,13 @@ export class TodoController {
     @Inject('TodoService') private readonly todoService: TodoService,
     @Inject('AuthGuard') private readonly authGuard: AuthGuard
   ) {}
+
+  @Get('/', 200)
+  async getTodos(req: Request): Promise<Todo[]> {
+    await this.authGuard.guardUserIsAuthenticated(req);
+
+    return this.todoService.getTodos();
+  }
 
   @Post('/', 201)
   @Middleware(ValidatorMiddleware(CreateTodoDTO))

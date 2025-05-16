@@ -28,4 +28,25 @@ export class TodoRepo {
       due_time: formatDate(new Date(todo.due_time)),
     };
   }
+
+  async findAll(): Promise<Todo[]> {
+    const [rows] = await this.db.query('SELECT * FROM todo');
+    return (rows as Todo[]).map((row) => ({
+      ...row,
+      created_at: formatDate(new Date(row.created_at)),
+      due_time: formatDate(new Date(row.due_time)),
+    }));
+  }
+
+  async findAllByUserId(userId: number): Promise<Todo[]> {
+    const [rows] = await this.db.query('SELECT * FROM todo WHERE user_id = ?', [
+      userId,
+    ]);
+
+    return (rows as Todo[]).map((row) => ({
+      ...row,
+      created_at: formatDate(new Date(row.created_at)),
+      due_time: formatDate(new Date(row.due_time)),
+    }));
+  }
 }

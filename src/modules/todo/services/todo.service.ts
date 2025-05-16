@@ -8,10 +8,14 @@ export class TodoService {
   constructor(@Inject('TodoRepo') private readonly todoRepo: TodoRepo) {}
 
   async createTodo(todoData: InferCreateTodoDTO): Promise<Todo> {
-    const parsedData = {
-      ...todoData,
-      due_time: new Date(todoData.due_time),
-    };
-    return this.todoRepo.create(parsedData);
+    return this.todoRepo.create(todoData);
+  }
+
+  async getTodos(): Promise<Todo[]> {
+    return this.todoRepo.findAll();
+  }
+
+  async getTodosByUserId(userId: number): Promise<Todo[]> {
+    return this.todoRepo.findAllByUserId(userId);
   }
 }

@@ -1,0 +1,192 @@
+/* eslint-disable max-lines-per-function */
+
+import 'dotenv/config';
+
+import request from 'supertest';
+import mysql from 'mysql2/promise';
+import { randomUUID } from 'crypto';
+import CryptoService from '@/modules/crypto/services/crypto.service';
+import { User } from '@/modules/user/models/user.model';
+
+const baseUrl = process.env.BASE_URL ?? 'http://localhost:3000';
+
+const agent = request.agent(baseUrl);
+const email = randomUUID() + '@test.com';
+let connection: mysql.Connection;
+let token: string;
+let userId: number;
+let userIdBis: number;
+const cryptoService = new CryptoService();
+
+describe('User', () => {
+  beforeAll(async () => {
+    connection = await mysql.createConnection({
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_ROOT_PASSWORD,
+      database: process.env.MYSQL_DATABASE,
+    });
+
+    // Register a user directly in the database
+    const hashedPassword = await cryptoService.hashPassword('password');
+    await connection.query(
+      'INSERT INTO user (email, password, firstname, name) VALUES (?, ?, ?, ?)',
+      [email, hashedPassword, 'John', 'Doe']
+    );
+
+    await connection.query(
+      'INSERT INTO user (email, password, firstname, name) VALUES (?, ?, ?, ?)',
+      ['bis.' + email, hashedPassword, 'John', 'Doe']
+    );
+
+    // Get the inserted user ID
+    const [rows] = await connection.query(
+      'SELECT id FROM user WHERE email = ?',
+      [email]
+    );
+    userId = (rows as User[])[0].id;
+
+    const [rowsBis] = await connection.query(
+      'SELECT id FROM user WHERE email = ?',
+      ['bis.' + email]
+    );
+    userIdBis = (rowsBis as User[])[0].id;
+
+    // Create a todo
+    await connection.query(
+      'INSERT INTO todo (title, description, due_time, user_id, status) VALUES (?, ?, ?, ?, ?)',
+      [
+        'Test Todo',
+        'Test Description',
+        '2021-03-03 19:24:00',
+        userId,
+        'not started',
+      ]
+    );
+
+    // Create a second todo
+    await connection.query(
+      'INSERT INTO todo (title, description, due_time, user_id, status) VALUES (?, ?, ?, ?, ?)',
+      [
+        'Test Todo 2',
+        'Test Description 2',
+        '2021-03-03 19:24:00',
+        userId,
+        'in progress',
+      ]
+    );
+
+    // Create a third todo
+    await connection.query(
+      'INSERT INTO todo (title, description, due_time, user_id, status) VALUES (?, ?, ?, ?, ?)',
+      [
+        'Test Todo 3',
+        'Test Description 3',
+        '2021-03-03 19:24:00',
+        userIdBis,
+        'done',
+      ]
+    );
+
+    // Create a token manually
+    token = cryptoService.signToken({
+      id: userId,
+      email,
+      password: hashedPassword,
+      firstname: 'John',
+      name: 'Doe',
+      created_at: new Date().toISOString(),
+    });
+  });
+
+  describe('GET /todos', () => {
+    it('should get all todos', async () => {
+      const response = await agent
+        .get('/todos')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+      expect(response.body.length).toBe(3);
+      expect(response.body[0]).toMatchObject({
+        id: expect.any(Number),
+        user_id: userId,
+        status: 'not started',
+        title: 'Test Todo',
+        description: 'Test Description',
+        created_at: expect.any(String),
+        due_time: '2021-03-03 19:24:00',
+      });
+      expect(response.body[1]).toMatchObject({
+        id: expect.any(Number),
+        user_id: userId,
+        status: 'in progress',
+        title: 'Test Todo 2',
+        description: 'Test Description 2',
+        created_at: expect.any(String),
+        due_time: '2021-03-03 19:24:00',
+      });
+      expect(response.body[2]).toMatchObject({
+        id: expect.any(Number),
+        user_id: userIdBis,
+        status: 'done',
+        title: 'Test Todo 3',
+        description: 'Test Description 3',
+        created_at: expect.any(String),
+        due_time: '2021-03-03 19:24:00',
+      });
+    });
+
+    it('should throw an unauthorized error if no token is provided', async () => {
+      const response = await agent.get('/todos');
+
+      expect(response.status).toBe(401);
+      expect(response.body.msg).toBe('No token, authorization denied');
+    });
+  });
+
+  describe('GET /user/todos', () => {
+    it('should get all todos for a user', async () => {
+      const response = await agent
+        .get('/user/todos')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+      expect(response.body.length).toBe(2);
+      expect(response.body[0]).toMatchObject({
+        id: expect.any(Number),
+        user_id: userId,
+        status: 'not started',
+        title: 'Test Todo',
+        description: 'Test Description',
+        due_time: '2021-03-03 19:24:00',
+        created_at: expect.any(String),
+      });
+      expect(response.body[1]).toMatchObject({
+        id: expect.any(Number),
+        user_id: userId,
+        status: 'in progress',
+        title: 'Test Todo 2',
+        description: 'Test Description 2',
+        due_time: '2021-03-03 19:24:00',
+        created_at: expect.any(String),
+      });
+    });
+
+    it('should throw an unauthorized error if no token is provided', async () => {
+      const response = await agent.get('/user/todos');
+
+      expect(response.status).toBe(401);
+      expect(response.body.msg).toBe('No token, authorization denied');
+    });
+  });
+
+  afterAll(async () => {
+    await connection.query('DELETE FROM user WHERE email = ?', [email]);
+    await connection.query('DELETE FROM user WHERE email = ?', [
+      'bis.' + email,
+    ]);
+    await connection.end();
+  });
+});
