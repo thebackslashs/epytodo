@@ -44,4 +44,27 @@ export class TodoService {
 
     return todo;
   }
+
+  async deleteTodoById(id: number): Promise<void> {
+    await this.todoRepo.deleteOneBy({ id });
+  }
+
+  async deleteUserTodoById(
+    id: number,
+    userId: number
+  ): Promise<{ msg: string }> {
+    const todo = await this.todoRepo.findOneBy({ id });
+
+    if (!todo) {
+      throw new NotFoundError();
+    }
+
+    if (todo.user_id !== userId) {
+      throw new NotAutorizedError();
+    }
+
+    await this.todoRepo.deleteOneBy({ id, user_id: userId });
+
+    return { msg: 'Successfully deleted record number: ' + id };
+  }
 }

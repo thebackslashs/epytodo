@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Post } from '@/core';
+import { Controller, Delete, Get, Inject, Post } from '@/core';
 import { Request } from 'express';
 import { TodoService } from '../services/todo.service';
 import { Middleware } from '@/core/decorators/middleware.decorator';
@@ -9,7 +9,7 @@ import {
 import CreateTodoDTO, { InferCreateTodoDTO } from './../dtos/create-todo.dto';
 import { Todo } from '../models/todo.model';
 import { AuthGuard } from '@/modules/auth/guards/auth.guard';
-import GetTodoByIdSchema from '../dtos/user-id.dto';
+import TodoIdDTO from '../dtos/user-id.dto';
 
 @Controller('/todos')
 export class TodoController {
@@ -26,7 +26,7 @@ export class TodoController {
   }
 
   @Get('/:id', 200)
-  @Middleware(ParamsValidatorMiddleware(GetTodoByIdSchema))
+  @Middleware(ParamsValidatorMiddleware(TodoIdDTO))
   async getTodoById(req: Request): Promise<Todo> {
     const userId = await this.authGuard.guardUserIsAuthenticated(req);
 
@@ -44,5 +44,16 @@ export class TodoController {
     const todoData = req.body as InferCreateTodoDTO;
     const todo = await this.todoService.createTodo(todoData);
     return todo;
+  }
+
+  @Delete('/:id', 200)
+  @Middleware(ParamsValidatorMiddleware(TodoIdDTO))
+  async deleteTodo(req: Request): Promise<{ msg: string }> {
+    const userId = await this.authGuard.guardUserIsAuthenticated(req);
+
+    return await this.todoService.deleteUserTodoById(
+      Number(req.params.id),
+      userId
+    );
   }
 }

@@ -71,4 +71,14 @@ export class TodoRepo {
       due_time: formatDate(new Date(todo.due_time)),
     };
   }
+
+  async deleteOneBy(fields: Partial<Todo>): Promise<void> {
+    await this.db.query(
+      'DELETE FROM todo WHERE ' +
+        Object.keys(fields)
+          .map((key) => `${key} = ?`)
+          .join(' AND '),
+      Object.values(fields)
+    );
+  }
 }

@@ -21,7 +21,7 @@ let todoId: number;
 let todoIdBis: number;
 const cryptoService = new CryptoService();
 
-describe('Get Todos', () => {
+describe('Delete Todo', () => {
   beforeAll(async () => {
     connection = await mysql.createConnection({
       host: process.env.MYSQL_HOST,
@@ -49,6 +49,7 @@ describe('Get Todos', () => {
     );
     userId = (rows as User[])[0].id;
 
+    // Get the inserted user ID for the second user
     const [rowsBis] = await connection.query(
       'SELECT id FROM user WHERE email = ?',
       ['bis.' + email]
@@ -67,13 +68,6 @@ describe('Get Todos', () => {
       ]
     );
 
-    // Get the inserted todo ID
-    const [rowsTodo] = await connection.query(
-      'SELECT id FROM todo WHERE user_id = ?',
-      [userId]
-    );
-    todoId = (rowsTodo as Todo[])[0].id;
-
     // Create a second todo
     await connection.query(
       'INSERT INTO todo (title, description, due_time, user_id, status) VALUES (?, ?, ?, ?, ?)',
@@ -81,24 +75,19 @@ describe('Get Todos', () => {
         'Test Todo 2',
         'Test Description 2',
         '2021-03-03 19:24:00',
-        userId,
+        userIdBis,
         'in progress',
       ]
     );
 
-    // Create a third todo
-    await connection.query(
-      'INSERT INTO todo (title, description, due_time, user_id, status) VALUES (?, ?, ?, ?, ?)',
-      [
-        'Test Todo 3',
-        'Test Description 3',
-        '2021-03-03 19:24:00',
-        userIdBis,
-        'done',
-      ]
+    // Get the first inserted todo ID
+    const [rowsTodo] = await connection.query(
+      'SELECT id FROM todo WHERE user_id = ?',
+      [userId]
     );
+    todoId = (rowsTodo as Todo[])[0].id;
 
-    // Get the inserted todo ID
+    // Get the second inserted todo ID
     const [rowsTodoBis] = await connection.query(
       'SELECT id FROM todo WHERE user_id = ?',
       [userIdBis]
@@ -116,118 +105,28 @@ describe('Get Todos', () => {
     });
   });
 
-  describe('GET /todos', () => {
+  describe('DELETE /todos/:id', () => {
     it('should get all todos', async () => {
       const response = await agent
-        .get('/todos')
+        .delete(`/todos/${todoId}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
-      expect(response.body).toBeDefined();
-      expect(response.body.length).toBe(3);
-      expect(response.body[0]).toMatchObject({
-        id: expect.any(Number),
-        user_id: userId,
-        status: 'not started',
-        title: 'Test Todo',
-        description: 'Test Description',
-        created_at: expect.any(String),
-        due_time: '2021-03-03 19:24:00',
-      });
-      expect(response.body[1]).toMatchObject({
-        id: expect.any(Number),
-        user_id: userId,
-        status: 'in progress',
-        title: 'Test Todo 2',
-        description: 'Test Description 2',
-        created_at: expect.any(String),
-        due_time: '2021-03-03 19:24:00',
-      });
-      expect(response.body[2]).toMatchObject({
-        id: expect.any(Number),
-        user_id: userIdBis,
-        status: 'done',
-        title: 'Test Todo 3',
-        description: 'Test Description 3',
-        created_at: expect.any(String),
-        due_time: '2021-03-03 19:24:00',
-      });
+      expect(response.body.msg).toBe(
+        `Successfully deleted record number: ${todoId}`
+      );
     });
 
     it('should throw an unauthorized error if no token is provided', async () => {
-      const response = await agent.get('/todos');
+      const response = await agent.delete(`/todos/${todoId}`);
 
       expect(response.status).toBe(401);
       expect(response.body.msg).toBe('No token, authorization denied');
-    });
-  });
-
-  describe('GET /user/todos', () => {
-    it('should get all todos for a user', async () => {
-      const response = await agent
-        .get('/user/todos')
-        .set('Authorization', `Bearer ${token}`);
-
-      expect(response.status).toBe(200);
-      expect(response.body).toBeDefined();
-      expect(response.body.length).toBe(2);
-      expect(response.body[0]).toMatchObject({
-        id: expect.any(Number),
-        user_id: userId,
-        status: 'not started',
-        title: 'Test Todo',
-        description: 'Test Description',
-        due_time: '2021-03-03 19:24:00',
-        created_at: expect.any(String),
-      });
-      expect(response.body[1]).toMatchObject({
-        id: expect.any(Number),
-        user_id: userId,
-        status: 'in progress',
-        title: 'Test Todo 2',
-        description: 'Test Description 2',
-        due_time: '2021-03-03 19:24:00',
-        created_at: expect.any(String),
-      });
-    });
-
-    it('should throw an unauthorized error if no token is provided', async () => {
-      const response = await agent.get('/user/todos');
-
-      expect(response.status).toBe(401);
-      expect(response.body.msg).toBe('No token, authorization denied');
-    });
-  });
-
-  describe('GET /todos/:id', () => {
-    it('should throw an unauthorized error if no token is provided', async () => {
-      const response = await agent.get(`/todos/${todoId}`);
-
-      expect(response.status).toBe(401);
-      expect(response.body.msg).toBe('No token, authorization denied');
-    });
-
-    it('should get a todo by id', async () => {
-      const response = await agent
-        .set('Authorization', `Bearer ${token}`)
-        .get(`/todos/${todoId}`);
-
-      expect(response.status).toBe(200);
-      expect(response.body).toBeDefined();
-      expect(response.body).toMatchObject({
-        id: todoId,
-        user_id: userId,
-        status: 'not started',
-        title: 'Test Todo',
-        description: 'Test Description',
-        due_time: '2021-03-03 19:24:00',
-        created_at: expect.any(String),
-      });
     });
 
     it('should throw an unauthorized error if invalid token is provided', async () => {
       const response = await agent
-        .get(`/todos/${todoId}`)
+        .delete(`/todos/${todoId}`)
         .set('Authorization', `Bearer invalid-token`);
 
       expect(response.status).toBe(401);
@@ -235,18 +134,14 @@ describe('Get Todos', () => {
     });
 
     it('should throw a bad request error if the id is not a number', async () => {
-      const response = await agent
-        .get(`/todos/not-a-number`)
-        .set('Authorization', `Bearer ${token}`);
+      const response = await agent.delete(`/todos/not-a-number`);
 
       expect(response.status).toBe(400);
       expect(response.body.msg).toBe('Bad parameter');
     });
 
-    it('should throw a bad request error if the id negative', async () => {
-      const response = await agent
-        .get(`/todos/-1`)
-        .set('Authorization', `Bearer ${token}`);
+    it('should throw a bad request error if the id is negative', async () => {
+      const response = await agent.delete(`/todos/-1`);
 
       expect(response.status).toBe(400);
       expect(response.body.msg).toBe('Bad parameter');
@@ -254,16 +149,16 @@ describe('Get Todos', () => {
 
     it('should throw a not found error if the todo does not exist', async () => {
       const response = await agent
-        .get(`/todos/999999`)
+        .delete(`/todos/999999`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(404);
       expect(response.body.msg).toBe('Not found');
     });
 
-    it('should throw a not found error if the todo does not belong to the user', async () => {
+    it('should throw an unauthorized error if the todo does not belong to the user', async () => {
       const response = await agent
-        .get(`/todos/${todoIdBis}`)
+        .delete(`/todos/${todoIdBis}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(401);
@@ -277,7 +172,6 @@ describe('Get Todos', () => {
       'bis.' + email,
     ]);
     await connection.query('DELETE FROM todo WHERE user_id = ?', [userId]);
-    await connection.query('DELETE FROM todo WHERE user_id = ?', [userIdBis]);
     await connection.query('DELETE FROM todo WHERE user_id = ?', [userIdBis]);
     await connection.end();
   });
