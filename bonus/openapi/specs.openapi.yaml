@@ -60,7 +60,7 @@ components:
           type: string
           enum:
             [
-              'Email already exists',
+              'Account already exists',
               'Bad parameter',
               'Not found',
               'Internal server error',
