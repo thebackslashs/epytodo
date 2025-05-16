@@ -27,13 +27,20 @@ export interface ObjectCriteria {
   optional?: boolean;
 }
 
+export interface EnumCriteria {
+  values: readonly string[];
+  optional?: boolean;
+}
+
 export type StringValidator = (data: unknown) => ValidationResult;
 export type NumberValidator = (data: unknown) => ValidationResult;
 export type BooleanValidator = (data: unknown) => ValidationResult;
 export type ObjectValidator = (data: unknown) => ValidationResult;
+export type EnumValidator = (data: unknown) => ValidationResult;
 
 export type Schema =
   | ObjectValidator
   | StringValidator
   | NumberValidator
-  | BooleanValidator;
+  | BooleanValidator
+  | EnumValidator;

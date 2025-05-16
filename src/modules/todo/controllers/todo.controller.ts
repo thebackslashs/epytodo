@@ -5,18 +5,22 @@ import { Middleware } from '@/core/decorators/middleware.decorator';
 import ValidatorMiddleware from '@/middlewares/validator.middleware';
 import CreateTodoDTO, { InferCreateTodoDTO } from './../dtos/create-todo.dto';
 import { Todo } from '../models/todo.model';
+import { AuthGuard } from '@/modules/auth/guards/auth.guard';
 
 @Controller('/todos')
 export class TodoController {
   constructor(
-    @Inject('TodoService') private readonly todoService: TodoService
+    @Inject('TodoService') private readonly todoService: TodoService,
+    @Inject('AuthGuard') private readonly authGuard: AuthGuard
   ) {}
 
-  @Post('/')
+  @Post('/', 201)
   @Middleware(ValidatorMiddleware(CreateTodoDTO))
-  async createTodo(req: Request): Promise<{ todo: Todo }> {
+  async createTodo(req: Request): Promise<Todo> {
+    await this.authGuard.guardUserCanModifyUserRessource(req, req.body.user_id);
+
     const todoData = req.body as InferCreateTodoDTO;
     const todo = await this.todoService.createTodo(todoData);
-    return { todo };
+    return todo;
   }
 }

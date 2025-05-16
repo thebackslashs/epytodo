@@ -4,9 +4,11 @@ const CreateTodoDTO = v.object({
   fields: {
     title: v.string({ minLength: 1, maxLength: 255 }),
     description: v.string({ minLength: 1 }),
-    due_time: v.string({ minLength: 1 }), // Will validate as ISO date string
-    status: v.string({ pattern: /^(not started|todo|in progress|done)$/ }),
-    user_id: v.number({ min: 1 }),
+    due_time: v.string({ isDate: true }),
+    status: v.enum({
+      values: ['not started', 'todo', 'in progress', 'done'],
+    }),
+    user_id: v.number({ min: 0 }),
   },
 });
 

@@ -245,4 +245,38 @@ describe('Validation Builder', () => {
       expect(result.errors).toHaveLength(0);
     });
   });
+
+  describe('Enum Validation', () => {
+    const enumValidator = v.enum({
+      values: ['red', 'green', 'blue'] as const,
+    });
+
+    it('should validate valid enum value', () => {
+      const result = validate(enumValidator, 'red');
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should reject invalid enum value', () => {
+      const result = validate(enumValidator, 'yellow');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Value must be one of: red, green, blue');
+    });
+
+    it('should reject non-string input', () => {
+      const result = validate(enumValidator, 123);
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Expected a string');
+    });
+
+    it('should handle optional enum', () => {
+      const optionalValidator = v.enum({
+        values: ['red', 'green', 'blue'] as const,
+        optional: true,
+      });
+      const result = validate(optionalValidator, undefined);
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+  });
 });
