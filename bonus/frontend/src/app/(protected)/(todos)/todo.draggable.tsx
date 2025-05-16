@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { TodoCard } from './todo.card';
-import { PossibleDraftTodo } from './draft.type';
+import { PossibleDraftTodo } from '@/src/hooks/useTodos';
 import { useTodo } from '@/src/stores/ActiveTodoContext';
 import { cn } from '@/src/lib/utils';
 

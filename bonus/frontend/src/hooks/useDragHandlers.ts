@@ -1,6 +1,6 @@
 import { DragMoveEvent, DragStartEvent } from '@dnd-kit/core';
 import { useState } from 'react';
-import { PossibleDraftTodo } from '../app/(protected)/(todos)/draft.type';
+import type { PossibleDraftTodo } from './useTodos';
 
 interface UseDragHandlersProps {
   columnIds: string[];

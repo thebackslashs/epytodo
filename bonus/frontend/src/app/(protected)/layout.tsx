@@ -14,7 +14,7 @@ export default async function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getSession({ redirectTo: '/login' });
+  const { user } = await getSession({ redirectTo: '/login' });
 
   return (
     <>

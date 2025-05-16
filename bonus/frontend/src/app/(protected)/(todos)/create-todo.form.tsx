@@ -4,15 +4,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { cn } from '@/src/lib/utils';
-import { PossibleDraftTodo } from './draft.type';
-import { DraggableTodoCard } from './todo.draggable';
-import { Textarea } from '@/src/components/ui/textarea';
-import { useDroppable } from '@dnd-kit/core';
 import {
   DRAFT_DROP_ZONE_ID,
   DRAFT_ID,
   DRAFT_STATUS,
+  PossibleDraftTodo,
 } from '@/src/hooks/useTodos';
+import { DraggableTodoCard } from './todo.draggable';
+import { Textarea } from '@/src/components/ui/textarea';
+import { useDroppable } from '@dnd-kit/core';
 
 function StepTitle({
   value,

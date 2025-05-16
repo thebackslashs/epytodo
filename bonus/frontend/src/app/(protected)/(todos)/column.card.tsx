@@ -2,7 +2,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { Card } from '@/src/components/ui/card';
 import { DraggableTodoCard } from './todo.draggable';
 import { cn } from '@/src/lib/utils';
-import { PossibleDraftTodo } from './draft.type';
+import { PossibleDraftTodo } from '@/src/hooks/useTodos';
 
 interface ColumnProps {
   title: string;

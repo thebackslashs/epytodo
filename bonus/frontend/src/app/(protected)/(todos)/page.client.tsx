@@ -15,13 +15,17 @@ import {
 
 import { ActiveTodoProvider } from '@/src/stores/ActiveTodoContext';
 import { TodoCard } from '@/src/app/(protected)/(todos)/todo.card';
-import { DRAFT_DROP_ZONE_ID, DRAFT_ID, useTodos } from '@/src/hooks/useTodos';
+import {
+  DRAFT_DROP_ZONE_ID,
+  DRAFT_ID,
+  PossibleDraftTodo,
+  useTodos,
+} from '@/src/hooks/useTodos';
 import { useDragHandlers } from '@/src/hooks/useDragHandlers';
 import { cn } from '@/src/lib/utils';
 
 import { Column } from './column.card';
 import { CreateTodoForm } from './create-todo.form';
-import { PossibleDraftTodo } from './draft.type';
 
 interface TodoListProps {
   todos: PossibleDraftTodo[];

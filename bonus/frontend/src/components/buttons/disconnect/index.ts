@@ -1,1 +1,1 @@
-export { default as DisconnectButton } from "./disconnect.button";
+export { default as DisconnectButton } from './disconnect.button';

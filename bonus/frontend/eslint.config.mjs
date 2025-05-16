@@ -40,7 +40,6 @@ export default tseslint.config(
       '@typescript-eslint/prefer-optional-chain': 'error',
 
       // General code quality rules
-      'no-console': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
       eqeqeq: ['error', 'always'],

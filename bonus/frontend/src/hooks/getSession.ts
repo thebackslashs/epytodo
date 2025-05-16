@@ -9,8 +9,8 @@ interface GetSessionProps<T extends boolean = true> {
 }
 
 type GetSessionReturn<T extends boolean = true> = T extends true
-  ? User
-  : User | null;
+  ? { user: User; token: string }
+  : null;
 
 export async function getSession<T extends boolean = true>({
   redirectTo,
@@ -44,5 +44,5 @@ export async function getSession<T extends boolean = true>({
     redirect(redirectTo);
   }
 
-  return user.data as GetSessionReturn<T>;
+  return { user: user.data as User, token } as GetSessionReturn<T>;
 }
