@@ -349,7 +349,11 @@ paths:
                 description: { type: string }
                 due_time: { type: string, format: date-time }
                 user_id: { type: integer }
-                status: { type: string }
+                status:
+                  {
+                    type: string,
+                    enum: ['not started', 'todo', 'in progress', 'done'],
+                  }
       responses:
         '200':
           {

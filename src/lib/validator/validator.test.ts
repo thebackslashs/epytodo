@@ -41,6 +41,78 @@ describe('Validation Builder', () => {
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
     });
+
+    it('should validate valid date', () => {
+      const result = validate(
+        v.string({ isDate: true }),
+        '2021-01-01 12:00:00'
+      );
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should reject invalid date', () => {
+      const result = validate(v.string({ isDate: true }), '2021-01-01');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Invalid date');
+    });
+
+    it('should reject invalid date with invalid day', () => {
+      const result = validate(
+        v.string({ isDate: true }),
+        '2021-01-45 12:00:00'
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Invalid date');
+    });
+
+    it('should reject invalid date with invalid month', () => {
+      const result = validate(
+        v.string({ isDate: true }),
+        '2021-13-01 12:00:00'
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Invalid date');
+    });
+
+    it('should reject invalid date with invalid hour', () => {
+      const result = validate(
+        v.string({ isDate: true }),
+        '2021-01-01 25:00:00'
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Invalid date');
+    });
+
+    it('should reject invalid date with invalid minute', () => {
+      const result = validate(
+        v.string({ isDate: true }),
+        '2021-01-01 12:60:00'
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Invalid date');
+    });
+
+    it('should reject invalid date with invalid second', () => {
+      const result = validate(
+        v.string({ isDate: true }),
+        '2021-01-01 12:00:60'
+      );
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Invalid date');
+    });
+
+    it('should validate valid email', () => {
+      const result = validate(v.string({ isEmail: true }), 'test@example.com');
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should reject invalid email', () => {
+      const result = validate(v.string({ isEmail: true }), 'invalid-email');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Invalid email');
+    });
   });
 
   describe('Number Validation', () => {
@@ -167,6 +239,40 @@ describe('Validation Builder', () => {
         fields: {
           name: v.string({ minLength: 2, maxLength: 50 }),
         },
+      });
+      const result = validate(optionalValidator, undefined);
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+  });
+
+  describe('Enum Validation', () => {
+    const enumValidator = v.enum({
+      values: ['red', 'green', 'blue'] as const,
+    });
+
+    it('should validate valid enum value', () => {
+      const result = validate(enumValidator, 'red');
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should reject invalid enum value', () => {
+      const result = validate(enumValidator, 'yellow');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Value must be one of: red, green, blue');
+    });
+
+    it('should reject non-string input', () => {
+      const result = validate(enumValidator, 123);
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Expected a string');
+    });
+
+    it('should handle optional enum', () => {
+      const optionalValidator = v.enum({
+        values: ['red', 'green', 'blue'] as const,
+        optional: true,
       });
       const result = validate(optionalValidator, undefined);
       expect(result.valid).toBe(true);

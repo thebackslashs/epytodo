@@ -4,7 +4,7 @@ import {
   ValidationResult,
 } from '@/lib/validator/types';
 
-const parseObject = (
+export const parseObject = (
   data: unknown,
   criteria: ObjectCriteria
 ): ValidationResult => {
