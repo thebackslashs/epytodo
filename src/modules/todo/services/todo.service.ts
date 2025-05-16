@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@/core';
 import { TodoRepo } from '../repos/todo.repo';
 import { Todo } from '../models/todo.model';
 import { InferCreateTodoDTO } from './../dtos/create-todo.dto';
+import { NotFoundError } from '../errors/not-found.error';
+import { NotAutorizedError } from '../errors/not-autorized.error';
 
 @Injectable()
 export class TodoService {
@@ -20,6 +22,26 @@ export class TodoService {
   }
 
   async getTodoById(id: number): Promise<Todo> {
-    return this.todoRepo.findBy({ id });
+    const todo = await this.todoRepo.findOneBy({ id });
+
+    if (!todo) {
+      throw new NotFoundError();
+    }
+
+    return todo;
+  }
+
+  async getUserTodoById(id: number, userId: number): Promise<Todo> {
+    const todo = await this.todoRepo.findOneBy({ id });
+
+    if (!todo) {
+      throw new NotFoundError();
+    }
+
+    if (todo.user_id !== userId) {
+      throw new NotAutorizedError();
+    }
+
+    return todo;
   }
 }

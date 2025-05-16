@@ -50,7 +50,7 @@ export class TodoRepo {
     }));
   }
 
-  async findBy(fields: Partial<Todo>): Promise<Todo> {
+  async findOneBy(fields: Partial<Todo>): Promise<Todo | null> {
     const [rows] = await this.db.query(
       'SELECT * FROM todo WHERE ' +
         Object.keys(fields)
@@ -60,6 +60,11 @@ export class TodoRepo {
     );
 
     const todo = (rows as Todo[])[0];
+
+    if (!todo) {
+      return null;
+    }
+
     return {
       ...todo,
       created_at: formatDate(new Date(todo.created_at)),

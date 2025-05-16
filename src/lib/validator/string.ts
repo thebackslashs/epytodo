@@ -1,3 +1,5 @@
+/* eslint-disable complexity */
+
 import {
   StringCriteria,
   StringValidator,
@@ -14,6 +16,11 @@ const isValidDate = (date: string): boolean => {
   const dateRegex =
     /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01]) (?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
   return dateRegex.test(date);
+};
+
+const isValidNumber = (number: string): boolean => {
+  const numberRegex = /^\d+$/;
+  return numberRegex.test(number);
 };
 
 export const parseString = (
@@ -40,7 +47,8 @@ export const parseString = (
   }
   if (
     criteria.isNumber &&
-    !parseNumber(parseInt(data), criteria.numberCriteria ?? {}).valid
+    (!isValidNumber(data) ||
+      !parseNumber(parseInt(data), criteria.numberCriteria ?? {}).valid)
   ) {
     return { valid: false, errors: ['Invalid number'] };
   }

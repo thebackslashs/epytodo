@@ -2,7 +2,7 @@ import * as v from '@/lib/validator';
 
 const GetTodoByIdSchema = v.object({
   fields: {
-    id: v.number({ min: 0 }),
+    id: v.string({ isNumber: true, numberCriteria: { min: 0 } }),
   },
 });
 

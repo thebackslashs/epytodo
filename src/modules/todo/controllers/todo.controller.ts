@@ -22,18 +22,18 @@ export class TodoController {
   async getTodos(req: Request): Promise<Todo[]> {
     await this.authGuard.guardUserIsAuthenticated(req);
 
-    return this.todoService.getTodos();
+    return await this.todoService.getTodos();
   }
 
   @Get('/:id', 200)
   @Middleware(ParamsValidatorMiddleware(GetTodoByIdSchema))
   async getTodoById(req: Request): Promise<Todo> {
-    await this.authGuard.guardUserCanModifyUserRessource(
-      req,
-      Number(req.params.id)
-    );
+    const userId = await this.authGuard.guardUserIsAuthenticated(req);
 
-    return this.todoService.getTodoById(Number(req.params.id));
+    return await this.todoService.getUserTodoById(
+      Number(req.params.id),
+      userId
+    );
   }
 
   @Post('/', 201)
