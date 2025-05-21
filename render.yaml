@@ -23,7 +23,7 @@ services:
         sync: false
       - key: ADMIN_USERNAME
         sync: false
-      - key: ADMIN_PASSWORD
+      - key: ADMIN_HASHED_PASSWORD
         sync: false
     healthCheckPath: /health
     autoDeploy: true
