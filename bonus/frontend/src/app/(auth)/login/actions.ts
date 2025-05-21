@@ -1,5 +1,7 @@
 'use server';
 
+import '@/src/lib/epytodo-sdk.config';
+
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { SafeActionError, actionClient } from '@/src/lib/safe-action';

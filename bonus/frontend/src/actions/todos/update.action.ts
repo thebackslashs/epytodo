@@ -1,5 +1,7 @@
 'use server';
 
+import '@/src/lib/epytodo-sdk.config';
+
 import { actionClient } from '@/src/lib/safe-action';
 import { todoSchema } from './todo.schema';
 import { getSession } from '@/src/hooks/getSession';
