@@ -15,7 +15,7 @@ services:
         sync: false
       - key: MYSQL_USER
         sync: false
-      - key: MYSQL_PASSWORD
+      - key: MYSQL_ROOT_PASSWORD
         sync: false
       - key: MYSQL_DATABASE
         sync: false
