@@ -4,7 +4,7 @@ import { Todo } from '../models/todo.model';
 import { formatDate } from '@/lib/dates';
 import { NotFoundError } from '../errors/not-found.error';
 
-@Injectable()
+@Injectable('TodoRepo')
 export class TodoRepo {
   constructor(
     @Inject('DatabaseService') private readonly db: DatabaseService

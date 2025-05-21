@@ -6,7 +6,7 @@ import { NotFoundError } from '../errors/not-found.error';
 import { NotAutorizedError } from '../errors/not-autorized.error';
 import { BadParameterError } from '../errors/bad-parameter.error';
 
-@Injectable()
+@Injectable('TodoService')
 export class TodoService {
   constructor(@Inject('TodoRepo') private readonly todoRepo: TodoRepo) {}
 
