@@ -1,6 +1,6 @@
 # EpyTodo API Documentation
 
-This directory contains the auto-generated API documentation for the EpyTodo application. The documentation is generated from an OpenAPI specification and is presented in a user-friendly HTML format using ReDoc.
+This directory contains the auto-generated API documentation for the EpyTodo application. The documentation is generated from an OpenAPI specification and is presented in a user-friendly HTML format using Scalar.
 
 ## Contents
 
@@ -34,18 +34,4 @@ The documentation is generated using ReDoc (version 2.5.0), which is a popular O
 If you need to update the API documentation:
 
 1. Update the OpenAPI specification file
-2. Regenerate the documentation using ReDoc
-
-```bash
-npx @redocly/cli build-docs specs.openapi.yaml
-```
-
-3. Replace the existing `index.html` file with the newly generated one
-
-## Note
-
-This documentation is automatically generated and should not be edited manually. Any changes to the API should be made in the OpenAPI specification file and then regenerated.
-
-```
-
-```
+2. That it, thank's Scalar

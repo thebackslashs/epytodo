@@ -5,6 +5,7 @@ info:
   description: RESTful API for a Todo application with user authentication
 
 servers:
+  - url: https://api.epytodo.com
   - url: http://localhost:{port}
     variables:
       port:
