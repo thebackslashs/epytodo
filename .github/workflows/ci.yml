@@ -206,7 +206,7 @@ jobs:
           SECRET: test_secret
 
       - name: Start server in background
-        run: npm run start &
+        run: npm run start:prod &
         env:
           MYSQL_DATABASE: epytodo
           MYSQL_HOST: localhost
@@ -228,38 +228,3 @@ jobs:
           MYSQL_ROOT_PASSWORD: password
           PORT: 3000
           SECRET: test_secret
-
-  mirror:
-    needs: [build-and-test]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    env:
-      MIRROR_REPO: ${{ secrets.MIRROR_REPO }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-
-      - name: Check if not mirror
-        run: |
-          if [ "$GITHUB_REPOSITORY" = "$MIRROR_REPO" ]; then
-            echo "Already on mirror repository, skipping push"
-            exit 0
-          fi
-
-      - name: Push to mirror
-        run: |
-          git remote add mirror git@github.com:${{ secrets.MIRROR_REPO }}.git
-          git push mirror main
