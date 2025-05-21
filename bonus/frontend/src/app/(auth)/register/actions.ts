@@ -35,6 +35,7 @@ export const registerAction = actionClient
       secure: true,
       sameSite: 'strict',
       path: '/',
+      maxAge: 24 * 60 * 60,
     });
 
     revalidatePath('/', 'layout');
